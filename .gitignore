@@ -1,0 +1,8 @@
+# 가상환경 (백엔드)
+backend/venv/
+
+# Node.js 패키지 폴더 (프론트엔드)
+frontend/node_modules/
+
+# Python 캐시
+backend/__pycache__/
