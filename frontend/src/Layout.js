@@ -17,7 +17,8 @@ export default function Layout() {
       }}>
         <h1 style={{ margin: 0 }}>InsideOut</h1>
         <nav style={{ display: 'flex', gap: '16px' }}>
-          <Link to="login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
+            <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>홈</Link>
+            <Link to="login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
         </nav>
       </header>
 

@@ -11,7 +11,27 @@ export default function ContentList() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <h1>🎬 콘텐츠 목록</h1>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '24px'
+      }}>
+        <h1>🎬 콘텐츠 목록</h1>
+        <button
+          onClick={() => navigate('/add')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          + 콘텐츠 등록
+        </button>
+      </div>
 
       <div style={{
         display: 'grid',
@@ -26,10 +46,21 @@ export default function ContentList() {
               textAlign: 'center',
               border: '1px solid #ddd',
               borderRadius: '10px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
             }}
           >
-            <img src={content.image} alt={content.title} style={{ width: '100%', height: '250px', objectFit: 'cover' }} />
+            <img
+              src={content.image}
+              alt={content.title}
+              style={{
+                width: '100%',
+                height: '250px',
+                objectFit: 'cover',
+                borderTopLeftRadius: '10px',
+                borderTopRightRadius: '10px',
+              }}
+            />
             <p style={{ padding: '8px', fontWeight: 'bold' }}>{content.title}</p>
           </div>
         ))}
