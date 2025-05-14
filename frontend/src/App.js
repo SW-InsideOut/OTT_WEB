@@ -1,20 +1,23 @@
 // src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './Layout';
 import ContentList from './ContentList';
+import ContentDetail from './ContentDetail';
 import AddContent from './AddContent';
 import FrameCut from './FrameCut';
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<ContentList />} />
-        <Route path="/add" element={<AddContent />} />
-        <Route path="/capture" element={<FrameCut />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<ContentList />} />
+          <Route path="add" element={<AddContent />} />
+          <Route path="content/:id" element={<ContentDetail />} />
+          <Route path="capture/:id" element={<FrameCut />} />
+        </Route>
       </Routes>
     </Router>
   );
 }
-
-export default App;
