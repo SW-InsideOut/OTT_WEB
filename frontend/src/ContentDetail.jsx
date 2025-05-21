@@ -23,7 +23,7 @@ export default function ContentDetail() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <h2 style={{ marginBottom: '24px' }}>📄 콘텐츠 상세 정보</h2>
+      <h2 style={{ marginBottom: '24px' }}>{dummyContent.title}</h2>
 
       {/* 콘텐츠 정보: 이미지 + 정보 나란히 */}
       <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '32px' }}>
@@ -34,7 +34,6 @@ export default function ContentDetail() {
         />
 
         <div>
-          <h3 style={{ marginBottom: '12px' }}>{dummyContent.title}</h3>
           <p><strong>공개 연도:</strong> {dummyContent.year}</p>
           <p><strong>배급사:</strong> {dummyContent.distributor}</p>
           <p><strong>장르:</strong> {dummyContent.genre}</p>
@@ -57,7 +56,7 @@ export default function ContentDetail() {
         )}
       </div>
 
-      {/* 분석 시작 버튼 */}
+      {/* 분석 버튼 */}
       <div>
         <button
           onClick={() => navigate(`/capture/${id}`)}
@@ -70,7 +69,7 @@ export default function ContentDetail() {
             cursor: 'pointer',
           }}
         >
-          감정 분석 시작
+          감정 분석
         </button>
       </div>
     </div>
