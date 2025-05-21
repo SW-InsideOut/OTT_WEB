@@ -37,11 +37,8 @@ export default function ContentDetail() {
 
       {/* 콘텐츠 정보: 이미지 + 정보 나란히 */}
       <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '32px' }}>
-        <img
-          src={`http://localhost:5000/static/images/${content.poster_url}`}
-          alt={content.name}
-          style={{ width: '240px', borderRadius: '8px' }}
-        />
+        <img src={`http://localhost:5000/${content.poster_url}`} alt={content.name} />
+
 
         <div>
           <p><strong>공개 연도:</strong> {content.release_year}</p>

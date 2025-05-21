@@ -35,11 +35,8 @@ export default function ContentList() {
               cursor: 'pointer'
             }}
           >
-            <img
-              src={`http://localhost:5000/static/images/${content.poster_url}`}
-              alt={content.name}
-              style={{ width: '100%', height: '250px', objectFit: 'cover' }}
-            />
+            <img src={`http://localhost:5000/${content.poster_url}`} alt={content.name} />
+
             <p style={{ padding: '8px', fontWeight: 'bold' }}>{content.name}</p>
           </div>
         ))}

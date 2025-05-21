@@ -4,12 +4,16 @@ import base64
 import numpy as np
 import cv2
 import io
+import os
 from PIL import Image
 from datetime import datetime
 from tensorflow.keras.models import load_model
 from db_config import get_connection
+from flask import Flask, request, jsonify
+import traceback 
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 
 model = load_model('best_model_local8.h5')
@@ -24,27 +28,37 @@ def add_content():
         data = request.form
         file = request.files['poster']
 
+        # 저장 경로
+        upload_dir = os.path.join('static', 'images')
+        os.makedirs(upload_dir, exist_ok=True)
+
         filename = datetime.now().strftime('%Y%m%d%H%M%S_') + file.filename
-        file_path = f'static/images/{filename}'
+        file_path = os.path.join(upload_dir, filename)
         file.save(file_path)
 
+        # DB 저장용 상대경로 (프론트에서 접근할 수 있게)
+        poster_url = f'static/images/{filename}'
+
+
+        # 입력 데이터
         name = data.get('name')
-        year = int(data.get('year'))
+        year = int(data.get('release_year'))
         distributor = data.get('distributor')
-        genres = data.get('genres')
+        genre = data.get('genre')
 
         conn = get_connection()
         with conn.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO contents (name, year, distributor, genres, poster_url)
                 VALUES (%s, %s, %s, %s, %s)
-            """, (name, year, distributor, genres, file_path))
+            """, (name, year, distributor, genre, poster_url))
             conn.commit()
-
             cursor.execute("SELECT LAST_INSERT_ID() as id")
             content_id = cursor.fetchone()['id']
         return jsonify({'status': 'success', 'content_id': content_id}), 201
     except Exception as e:
+        traceback.print_exc()
+        print("❌ 콘텐츠 등록 중 오류 발생:", e)  # <-- 로그를 추가해주세요!
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # ----------------------------- 콘텐츠 목록 -----------------------------
