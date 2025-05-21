@@ -15,28 +15,53 @@ CORS(app)
 model = load_model('best_model_local8.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 class_labels = ['angry', 'happy', 'neutral', 'sad', 'surprize']
-
-# 서버 시작 기준 시각
 analysis_start_time = datetime.now()
 
-
-# 감정 저장 함수
-def save_emotion_to_db(emotion, timestamp):
-    print(f"[저장 시도] 감정: {emotion}, 시간: {timestamp}")
+# ----------------------------- 콘텐츠 등록 -----------------------------
+@app.route('/add_content', methods=['POST'])
+def add_content():
+    data = request.get_json()
+    name = data.get('name')
+    description = data.get('description', '')
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            sql = "INSERT INTO emotions (emotion, timestamp) VALUES (%s, %s)"
-            cursor.execute(sql, (emotion, timestamp))
+            cursor.execute("INSERT INTO contents (name, description) VALUES (%s, %s)", (name, description))
         conn.commit()
-        print("[DB 저장 성공]")
+        return jsonify({"status": "success"}), 201
     except Exception as e:
-        print("[DB 저장 실패]", e)
+        return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         conn.close()
 
+@app.route('/contents', methods=['GET'])
+def get_contents():
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM contents")
+            contents = cursor.fetchall()
+        return jsonify(contents)
+    finally:
+        conn.close()
 
-# 감정 분석 함수
+# ----------------------------- 감정 분석 -----------------------------
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json()
+    base64_img = data.get('image')
+    content_id = data.get('content_id')
+    emotion = analyze_emotion(base64_img)
+
+    if emotion != "no_face" and emotion != "error":
+        elapsed = datetime.now() - analysis_start_time
+        timestamp = str(elapsed).split('.')[0]  # HH:MM:SS
+
+        save_emotion_to_db(content_id, emotion, timestamp)
+        update_top_emotion(content_id)
+
+    return jsonify({'emotion': emotion})
+
 def analyze_emotion(base64_image):
     try:
         image_data = base64.b64decode(base64_image.split(',')[1])
@@ -45,7 +70,6 @@ def analyze_emotion(base64_image):
         faces = face_cascade.detectMultiScale(img_np, 1.3, 5)
 
         if len(faces) == 0:
-            print("[감정 분석 실패] 얼굴 인식 안됨")
             return "no_face"
 
         (x, y, w, h) = faces[0]
@@ -54,42 +78,47 @@ def analyze_emotion(base64_image):
         face_reshaped = np.expand_dims(face_resized, axis=(0, -1))
 
         prediction = model.predict(face_reshaped, verbose=0)
-        label = class_labels[np.argmax(prediction)]
-        print(f"[감정 분석 결과] {label}")
-        return label
-    except Exception as e:
-        print("[감정 분석 중 오류 발생]", e)
+        return class_labels[np.argmax(prediction)]
+    except:
         return "error"
 
-
-# top_emotion 업데이트 함수
-def update_top_emotion():
+def save_emotion_to_db(content_id, emotion, timestamp):
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            # 현재 가장 많이 등장한 감정 구하기
+            sql = "INSERT INTO emotions (content_id, emotion, timestamp) VALUES (%s, %s, %s)"
+            cursor.execute(sql, (content_id, emotion, timestamp))
+        conn.commit()
+    finally:
+        conn.close()
+
+# ----------------------------- Top Emotion 콘텐츠별 저장 -----------------------------
+def update_top_emotion(content_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
             cursor.execute("""
                 SELECT emotion
                 FROM emotions
+                WHERE content_id = %s
                 GROUP BY emotion
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """)
+            """, (content_id,))
             result = cursor.fetchone()
             if not result:
                 return
 
             top_emotion = result['emotion']
 
-            # 감정 기록 시간순 조회
             cursor.execute("""
                 SELECT emotion, timestamp
                 FROM emotions
+                WHERE content_id = %s
                 ORDER BY timestamp ASC;
-            """)
+            """, (content_id,))
             rows = cursor.fetchall()
 
-            # 연속된 구간 찾기
             segments = []
             current_emotion = None
             start_time = None
@@ -113,28 +142,26 @@ def update_top_emotion():
             if current_emotion == top_emotion and start_time and prev_time:
                 segments.append((start_time, prev_time))
 
-            # top 감정 count 및 전체 대비 비율 계산
-            cursor.execute("SELECT COUNT(*) AS total FROM emotions")
-            total_count = cursor.fetchone()['total']
+            cursor.execute("SELECT COUNT(*) FROM emotions WHERE content_id = %s", (content_id,))
+            total_count = cursor.fetchone()['COUNT(*)']
 
-            cursor.execute("SELECT COUNT(*) AS top_total FROM emotions WHERE emotion = %s", (top_emotion,))
-            top_count = cursor.fetchone()['top_total']
+            cursor.execute("SELECT COUNT(*) FROM emotions WHERE content_id = %s AND emotion = %s", (content_id, top_emotion))
+            top_count = cursor.fetchone()['COUNT(*)']
 
             percentage = round(top_count / total_count * 100, 1)
 
-            # 현재 top_emotion 테이블에 저장된 가장 높은 count 가져오기
-            cursor.execute("SELECT MAX(count) AS max_count FROM top_emotion")
+            cursor.execute("SELECT MAX(count) FROM top_emotion WHERE content_id = %s", (content_id,))
             result = cursor.fetchone()
-            max_count = result['max_count'] if result['max_count'] is not None else 0
+            max_count = result['MAX(count)'] if result['MAX(count)'] is not None else 0
 
-            # top_count가 더 클 때만 저장
             if top_count > max_count:
                 for seg_start, seg_end in segments:
                     insert_sql = """
-                        INSERT INTO top_emotion (emotion, count, percentage, start_time, end_time)
-                        VALUES (%s, %s, %s, %s, %s)
+                        INSERT INTO top_emotion (content_id, emotion, count, percentage, start_time, end_time)
+                        VALUES (%s, %s, %s, %s, %s, %s)
                     """
                     cursor.execute(insert_sql, (
+                        content_id,
                         top_emotion,
                         top_count,
                         percentage,
@@ -142,34 +169,15 @@ def update_top_emotion():
                         str(seg_end)
                     ))
                 conn.commit()
-                print(f"[top_emotion 저장 완료] count 증가 ({max_count} → {top_count}), {len(segments)}개 구간 저장됨")
+                print(f"[top_emotion 저장 완료] 콘텐츠 {content_id}, 감정 {top_emotion}, {len(segments)}개 구간 저장")
             else:
-                print("[top_emotion 저장 생략] count 변화 없음")
-
+                print(f"[top_emotion 생략] count 증가 없음 for content {content_id}")
     except Exception as e:
         print("[top_emotion 저장 오류]", e)
     finally:
         conn.close()
 
-
-# 감정 예측 API
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json()
-    base64_img = data.get('image')
-    emotion = analyze_emotion(base64_img)
-
-    if emotion != "no_face" and emotion != "error":
-        elapsed = datetime.now() - analysis_start_time
-        timestamp = str(elapsed).split('.')[0]  # HH:MM:SS 형식
-
-        save_emotion_to_db(emotion, timestamp)
-        update_top_emotion()
-
-    return jsonify({'emotion': emotion})
-
-
-# 서버 실행
+# ----------------------------- 서버 실행 -----------------------------
 if __name__ == '__main__':
     print("[서버 시작 시각]", analysis_start_time.strftime('%Y-%m-%d %H:%M:%S'))
     app.run(host='0.0.0.0', port=5000)
