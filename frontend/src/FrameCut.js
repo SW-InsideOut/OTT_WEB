@@ -1,23 +1,7 @@
-// src/FrameCut.js
-import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useRef, useEffect } from 'react';
 
-export default function FrameCut() {
-  const { id } = useParams(); // 콘텐츠 ID 추출
+export default function FrameCut({ contentId }) {
   const videoRef = useRef(null);
-
-  useEffect(() => {
-    // 웹캠 스트리밍 시작
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    });
-
-    // 3초마다 캡처 및 분석 요청
-    const interval = setInterval(captureAndSend, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   const captureAndSend = async () => {
     if (!videoRef.current) return;
@@ -26,48 +10,40 @@ export default function FrameCut() {
     canvas.width = 224;
     canvas.height = 224;
     const ctx = canvas.getContext('2d');
-
-    // 좌우 반전 캡처
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
     const image = canvas.toDataURL('image/jpeg');
 
     try {
       const res = await fetch('http://localhost:5000/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image,
-          contentId: id  // 콘텐츠 ID도 함께 전송 (서버가 필요로 할 경우)
-        }),
+        body: JSON.stringify({ image, content_id: contentId }) // ← 실제 전달받은 콘텐츠 ID
       });
 
       const data = await res.json();
-      console.log(`[${id}] 서버 응답:`, data);
+      console.log('감정:', data.emotion);
     } catch (err) {
-      console.error('❌ 백엔드 전송 실패:', err);
+      console.error('전송 실패:', err);
     }
   };
 
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    });
+
+    const interval = setInterval(captureAndSend, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div style={{ textAlign: 'center', padding: '24px' }}>
-      <h1>🎥 콘텐츠 {id} 감정 분석 중...</h1>
-      <video
-        ref={videoRef}
-        autoPlay
-        width="224"
-        height="224"
-        style={{
-          border: '1px solid #ccc',
-          transform: 'scaleX(-1)',
-          marginTop: '16px',
-        }}
-      />
-      <p style={{ marginTop: '12px', color: '#555' }}>
-        3초마다 자동으로 감정을 분석하고 있습니다.
-      </p>
+    <div>
+      <h2>감정 분석</h2>
+      <video ref={videoRef} autoPlay width="224" height="224" style={{ transform: 'scaleX(-1)' }} />
     </div>
   );
 }

@@ -20,20 +20,34 @@ analysis_start_time = datetime.now()
 # ----------------------------- 콘텐츠 등록 -----------------------------
 @app.route('/add_content', methods=['POST'])
 def add_content():
-    data = request.get_json()
-    name = data.get('name')
-    description = data.get('description', '')
-    conn = get_connection()
     try:
-        with conn.cursor() as cursor:
-            cursor.execute("INSERT INTO contents (name, description) VALUES (%s, %s)", (name, description))
-        conn.commit()
-        return jsonify({"status": "success"}), 201
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-    finally:
-        conn.close()
+        data = request.form
+        file = request.files['poster']
 
+        filename = datetime.now().strftime('%Y%m%d%H%M%S_') + file.filename
+        file_path = f'static/images/{filename}'
+        file.save(file_path)
+
+        name = data.get('name')
+        year = int(data.get('year'))
+        distributor = data.get('distributor')
+        genres = data.get('genres')
+
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO contents (name, year, distributor, genres, poster_url)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (name, year, distributor, genres, file_path))
+            conn.commit()
+
+            cursor.execute("SELECT LAST_INSERT_ID() as id")
+            content_id = cursor.fetchone()['id']
+        return jsonify({'status': 'success', 'content_id': content_id}), 201
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# ----------------------------- 콘텐츠 목록 -----------------------------
 @app.route('/contents', methods=['GET'])
 def get_contents():
     conn = get_connection()
@@ -44,6 +58,34 @@ def get_contents():
         return jsonify(contents)
     finally:
         conn.close()
+
+# ----------------------------- 콘텐츠 상세 -----------------------------
+@app.route('/content/<int:content_id>', methods=['GET'])
+def get_content(content_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM contents WHERE id = %s", (content_id,))
+            content = cursor.fetchone()
+        if content:
+            return jsonify(content)
+        else:
+            return jsonify({'error': 'Content not found'}), 404
+    finally:
+        conn.close()
+
+# ----------------------------- 콘텐츠 삭제 -----------------------------
+@app.route('/content/<int:content_id>', methods=['DELETE'])
+def delete_content(content_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM contents WHERE id = %s", (content_id,))
+            conn.commit()
+        return jsonify({'status': 'deleted'})
+    finally:
+        conn.close()
+
 
 # ----------------------------- 감정 분석 -----------------------------
 @app.route('/predict', methods=['POST'])

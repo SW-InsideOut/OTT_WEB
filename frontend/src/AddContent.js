@@ -1,103 +1,96 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+
 export default function AddContent() {
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    imageFile: null,
-    title: '',
-    year: '',
+    name: '',
+    release_year: new Date().getFullYear(),
     distributor: '',
     genre: '',
   });
-
-  const [preview, setPreview] = useState(null); // 이미지 미리보기
+  const [poster, setPoster] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setForm(prev => ({ ...prev, imageFile: file }));
+  const handleFileChange = (e) => {
+    setPoster(e.target.files[0]);
+  };
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(file);
-    } else {
-      setPreview(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) =>
+      formData.append(key, value)
+    );
+    if (poster) formData.append('poster', poster);
+  
+    try {
+      const res = await axios.post('http://localhost:5000/add_content', formData);
+      alert('콘텐츠가 등록되었습니다.');
+  
+      // 등록된 콘텐츠 ID로 이동
+      const contentId = res.data.content_id; // 이 값이 백엔드에서 반환되어야 함
+      window.location.href = `/content/${contentId}`;
+    } catch (err) {
+      alert('등록 실패: ' + err.message);
     }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    console.log("✅ 등록된 콘텐츠 정보:", {
-      title: form.title,
-      year: form.year,
-      distributor: form.distributor,
-      genre: form.genre,
-      imageFileName: form.imageFile ? form.imageFile.name : null,
-    });
-
-    alert('콘텐츠가 등록되었습니다!');
-    navigate('/');
-  };
+  
 
   return (
-    <div style={{ padding: '24px', maxWidth: '500px', margin: '0 auto' }}>
-      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>🎥 콘텐츠 등록</h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        
-        {/* 이미지 파일 */}
-        <label>
-          영화 이미지: 
+    <div
+      style={{
+        height: '80vh',
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          width: '360px',
+        }}
+      >
+        <h2 style={{ textAlign: 'center' }}>콘텐츠 등록</h2>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ width: '80px' }}>표지 이미지</label>
+          <input type="file" accept="image/*" onChange={handleFileChange} required />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ width: '80px' }}>제목</label>
           <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            required
-          />
-        </label>
-
-        {preview && (
-          <img
-            src={preview}
-            alt="미리보기"
-            style={{
-              width: '100%',
-              maxHeight: '300px',
-              objectFit: 'contain',
-              marginTop: '8px',
-              borderRadius: '8px'
-            }}
-          />
-        )}
-
-        {/* 제목 */}
-        <input
-          type="text"
-          name="title"
-          placeholder="제목"
-          value={form.title}
-          onChange={handleChange}
-          required
-        />
-
-        {/* 연도 (드롭다운) */}
-        <label>
-          출시 연도:  
-          <select
-            name="year"
-            value={form.year}
+            type="text"
+            name="name"
+            value={form.name}
             onChange={handleChange}
             required
+            style={{ flex: 1 }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ width: '80px' }}>공개 연도</label>
+          <select
+            name="release_year"
+            value={form.release_year}
+            onChange={handleChange}
+            style={{ flex: 1 }}
           >
-            <option value="">연도를 선택하세요</option>
-            {Array.from({ length: 30 }, (_, i) => {
+            {Array.from({ length: 40 }, (_, i) => {
               const year = new Date().getFullYear() - i;
               return (
                 <option key={year} value={year}>
@@ -106,37 +99,33 @@ export default function AddContent() {
               );
             })}
           </select>
-        </label>
+        </div>
 
-        {/* 배급사 */}
-        <input
-          type="text"
-          name="distributor"
-          placeholder="배급사"
-          value={form.distributor}
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ width: '80px' }}>배급사</label>
+          <input
+            type="text"
+            name="distributor"
+            value={form.distributor}
+            onChange={handleChange}
+            required
+            style={{ flex: 1 }}
+          />
+        </div>
 
-        {/* 장르 */}
-        <input
-          type="text"
-          name="genre"
-          placeholder="장르"
-          value={form.genre}
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ width: '80px' }}>장르</label>
+          <input
+            type="text"
+            name="genre"
+            value={form.genre}
+            onChange={handleChange}
+            required
+            style={{ flex: 1 }}
+          />
+        </div>
 
-        <button type="submit" style={{
-          marginTop: '16px',
-          padding: '10px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer'
-        }}>
+        <button type="submit" style={{ marginTop: '12px' }}>
           등록
         </button>
       </form>
