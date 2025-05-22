@@ -4,3 +4,5 @@ opencv-python
 pillow
 numpy
 pymysql
+Werkzeug<2.3
+cryptography

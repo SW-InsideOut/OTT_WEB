@@ -37,16 +37,27 @@ export default function ContentDetail() {
 
       {/* 콘텐츠 정보: 이미지 + 정보 나란히 */}
       <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '32px' }}>
-        <img src={`http://localhost:5000/${content.poster_url}`} alt={content.name} />
-
+        <img
+          src={`http://localhost:5000/${content.poster_url}`}
+          alt={content.name}
+          style={{ maxWidth: '300px', height: 'auto', border: '1px solid #ccc' }}
+        />
 
         <div>
-          <p><strong>공개 연도:</strong> {content.release_year}</p>
+          <p><strong>공개 연도:</strong> {content.year}</p>
           <p><strong>배급사:</strong> {content.distributor}</p>
-          <p><strong>장르:</strong> {content.genre}</p>
+          <p><strong>장르:</strong> {content.genres}</p>
           <button
             onClick={handleDelete}
-            style={{ marginTop: '16px', backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px' }}
+            style={{
+              marginTop: '16px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
           >
             콘텐츠 삭제
           </button>
