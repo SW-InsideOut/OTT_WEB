@@ -17,7 +17,9 @@ CORS(app)
 model = load_model('best_model_local8.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 class_labels = ['angry', 'happy', 'neutral', 'sad', 'surprize']
-analysis_start_time = datetime.now()
+
+# 콘텐츠별 감정 분석 시작 시각 저장용 딕셔너리
+analysis_start_times = {}
 
 # ----------------------------- 콘텐츠 등록 -----------------------------
 @app.route('/add_content', methods=['POST'])
@@ -26,7 +28,6 @@ def add_content():
         data = request.form
         file = request.files['poster']
 
-        # 저장 경로
         upload_dir = os.path.join('static', 'images')
         os.makedirs(upload_dir, exist_ok=True)
 
@@ -125,6 +126,17 @@ def delete_content(content_id):
     finally:
         conn.close()
 
+# ----------------------------- 감정 분석 시작 시각 저장 -----------------------------
+@app.route('/start_analysis/<int:content_id>', methods=['POST'])
+def start_analysis(content_id):
+    try:
+        analysis_start_times[content_id] = datetime.now()
+        print(f"[감정 분석 시작 기록] 콘텐츠 {content_id}, 시간: {analysis_start_times[content_id]}")
+        return jsonify({'status': 'started'})
+    except Exception as e:
+        print("[감정 분석 시작 오류]", e)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 # ----------------------------- 감정 분석 -----------------------------
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -134,7 +146,8 @@ def predict():
     emotion = analyze_emotion(base64_img)
 
     if emotion != "no_face" and emotion != "error":
-        elapsed = datetime.now() - analysis_start_time
+        start_time = analysis_start_times.get(content_id, datetime.now())
+        elapsed = datetime.now() - start_time
         timestamp = str(elapsed).split('.')[0]
 
         save_emotion_to_db(content_id, emotion, timestamp)
@@ -145,6 +158,7 @@ def predict():
 
     return jsonify({'emotion': emotion})
 
+# ----------------------------- 감정 분석 함수 -----------------------------
 def analyze_emotion(base64_image):
     try:
         image_data = base64.b64decode(base64_image.split(',')[1])
@@ -169,6 +183,7 @@ def analyze_emotion(base64_image):
         print("[감정 분석 중 오류 발생]", e)
         return "error"
 
+# ----------------------------- 감정 DB 저장 -----------------------------
 def save_emotion_to_db(content_id, emotion, timestamp):
     table = f"emotions_{content_id}"
     conn = get_connection()
@@ -265,7 +280,28 @@ def update_top_emotion(content_id):
     finally:
         conn.close()
 
+# ----------------------------- 감정 최근 기록 -----------------------------
+@app.route('/emotions/<int:content_id>', methods=['GET'])
+def get_emotions(content_id):
+    table = f"emotions_{content_id}"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT emotion, timestamp
+                FROM {table}
+                ORDER BY id DESC
+                LIMIT 3;
+            """)
+            rows = cursor.fetchall()
+        return jsonify(rows)
+    except Exception as e:
+        print("[감정 조회 오류]", e)
+        return jsonify([]), 500
+    finally:
+        conn.close()
+
 # ----------------------------- 서버 실행 -----------------------------
 if __name__ == '__main__':
-    print("[서버 시작 시각]", analysis_start_time.strftime('%Y-%m-%d %H:%M:%S'))
+    print("[서버 시작 시각]", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     app.run(host='0.0.0.0', port=5000)

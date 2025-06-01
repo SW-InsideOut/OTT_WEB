@@ -29,6 +29,15 @@ export default function ContentDetail() {
     }
   };
 
+  const handleStartAnalysis = async () => {
+    try {
+      await axios.post(`http://localhost:5000/start_analysis/${id}`);
+      navigate(`/capture/${id}`);
+    } catch (err) {
+      alert('분석 시작에 실패했습니다.');
+    }
+  };
+
   if (!content) return <p style={{ padding: '24px' }}>불러오는 중...</p>;
 
   return (
@@ -42,7 +51,6 @@ export default function ContentDetail() {
           alt={content.name}
           style={{ maxWidth: '300px', height: 'auto', border: '1px solid #ccc' }}
         />
-
         <div>
           <p><strong>공개 연도:</strong> {content.year}</p>
           <p><strong>배급사:</strong> {content.distributor}</p>
@@ -83,7 +91,7 @@ export default function ContentDetail() {
       {/* 분석 시작 버튼 */}
       <div>
         <button
-          onClick={() => navigate(`/capture/${id}`)}
+          onClick={handleStartAnalysis}
           style={{
             padding: '10px 20px',
             backgroundColor: '#28a745',
