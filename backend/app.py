@@ -14,7 +14,7 @@ import traceback
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 
-model = load_model('best_model_local8.h5')
+model = load_model('best_model_GPU2.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 class_labels = ['angry', 'happy', 'neutral', 'sad', 'surprize']
 analysis_start_times = {}  # 콘텐츠별 분석 시작 시각 저장용
