@@ -17,9 +17,7 @@ CORS(app)
 model = load_model('best_model_local8.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 class_labels = ['angry', 'happy', 'neutral', 'sad', 'surprize']
-
-# 콘텐츠별 감정 분석 시작 시각 저장용 딕셔너리
-analysis_start_times = {}
+analysis_start_times = {}  # 콘텐츠별 분석 시작 시각 저장용
 
 # ----------------------------- 콘텐츠 등록 -----------------------------
 @app.route('/add_content', methods=['POST'])
@@ -27,21 +25,16 @@ def add_content():
     try:
         data = request.form
         file = request.files['poster']
-
         upload_dir = os.path.join('static', 'images')
         os.makedirs(upload_dir, exist_ok=True)
-
         filename = datetime.now().strftime('%Y%m%d%H%M%S_') + file.filename
         file_path = os.path.join(upload_dir, filename)
         file.save(file_path)
-
         poster_url = f'static/images/{filename}'
-
         name = data.get('name')
         year = int(data.get('release_year'))
         distributor = data.get('distributor')
         genre = data.get('genre')
-
         conn = get_connection()
         with conn.cursor() as cursor:
             cursor.execute("""
@@ -51,12 +44,18 @@ def add_content():
             conn.commit()
             cursor.execute("SELECT LAST_INSERT_ID() as id")
             content_id = cursor.fetchone()['id']
-
         create_emotion_tables(content_id)
         return jsonify({'status': 'success', 'content_id': content_id}), 201
     except Exception as e:
         traceback.print_exc()
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# ----------------------------- 감정 분석 시작 시각 등록 -----------------------------
+@app.route('/start_analysis/<int:content_id>', methods=['POST'])
+def start_analysis(content_id):
+    analysis_start_times[content_id] = datetime.now()
+    print(f"[감정 분석 시작] 콘텐츠 {content_id} → 기준 시각: {analysis_start_times[content_id]}")
+    return jsonify({'status': 'started'})
 
 # ----------------------------- 콘텐츠별 감정 테이블 생성 -----------------------------
 def create_emotion_tables(content_id):
@@ -126,17 +125,6 @@ def delete_content(content_id):
     finally:
         conn.close()
 
-# ----------------------------- 감정 분석 시작 시각 저장 -----------------------------
-@app.route('/start_analysis/<int:content_id>', methods=['POST'])
-def start_analysis(content_id):
-    try:
-        analysis_start_times[content_id] = datetime.now()
-        print(f"[감정 분석 시작 기록] 콘텐츠 {content_id}, 시간: {analysis_start_times[content_id]}")
-        return jsonify({'status': 'started'})
-    except Exception as e:
-        print("[감정 분석 시작 오류]", e)
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
 # ----------------------------- 감정 분석 -----------------------------
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -146,7 +134,11 @@ def predict():
     emotion = analyze_emotion(base64_img)
 
     if emotion != "no_face" and emotion != "error":
-        start_time = analysis_start_times.get(content_id, datetime.now())
+        start_time = analysis_start_times.get(content_id)
+        if not start_time:
+            print("[❌오류] 감정 분석 시작 시점 없음")
+            return jsonify({'emotion': 'error', 'message': '분석 시작 안 됨'}), 400
+
         elapsed = datetime.now() - start_time
         timestamp = str(elapsed).split('.')[0]
 
@@ -301,7 +293,23 @@ def get_emotions(content_id):
     finally:
         conn.close()
 
+# ----------------------------- 최신 Top 감정 1개 -----------------------------
+@app.route('/top_emotion/<int:content_id>', methods=['GET'])
+def get_latest_top_emotion(content_id):
+    table = f"top_emotion_{content_id}"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT emotion, count, percentage, start_time, end_time
+                FROM {table} ORDER BY id DESC LIMIT 1
+            """)
+            result = cursor.fetchone()
+        return jsonify(result if result else {})
+    finally:
+        conn.close()
+
 # ----------------------------- 서버 실행 -----------------------------
 if __name__ == '__main__':
-    print("[서버 시작 시각]", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print("[서버 시작됨]")
     app.run(host='0.0.0.0', port=5000)
