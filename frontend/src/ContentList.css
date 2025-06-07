@@ -1,0 +1,84 @@
+.content-list-container {
+  padding: 24px;
+  text-align: center;
+}
+
+/* 검색 영역 + 등록 버튼 중앙 정렬 */
+.search-and-button {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* 입력창 크기 조절 */
+.search-and-button input {
+  width: 500px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 버튼 공통 스타일 */
+.search-button,
+.register-button {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* 그리드 */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* 카드 */
+.content-card {
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.content-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.content-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+.content-card p {
+  margin: 8px 0;
+  font-weight: bold;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 24px;
+}
+.pagination button {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+.pagination button.active {
+  background: #eee;
+}
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

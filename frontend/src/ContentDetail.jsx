@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './App.css'; 
+import './App.css';
 
 export default function ContentDetail() {
   const { id } = useParams();
@@ -25,7 +25,7 @@ export default function ContentDetail() {
           timestamp: item.timestamp
         }));
         setEmotions(data);
-        setMaxTime(Math.max(...data.map(e => e.seconds), 1)); // 0 방지
+        setMaxTime(Math.max(...data.map(e => e.seconds), 1));
         setHistory(res.data);
       })
       .catch(() => setHistory([]));
@@ -37,7 +37,9 @@ export default function ContentDetail() {
 
   const timeStringToSeconds = (timeStr) => {
     const parts = timeStr.split(':').map(Number);
-    return parts.reduce((acc, val, idx) => acc + val * Math.pow(60, parts.length - idx - 1), 0);
+    return parts.reduce((acc, val, idx) =>
+      acc + val * Math.pow(60, parts.length - idx - 1), 0
+    , 0);
   };
 
   const handleDelete = async () => {
@@ -55,17 +57,9 @@ export default function ContentDetail() {
     try {
       await axios.post(`http://localhost:5000/start_analysis/${id}`);
       navigate(`/capture/${id}`);
-    } catch (err) {
+    } catch {
       alert('분석 시작에 실패했습니다.');
     }
-  };
-
-  const emotionColors = {
-    happy: '#FFD700',
-    sad: '#1E90FF',
-    angry: '#FF6347',
-    neutral: '#B0C4DE',
-    surprize: '#32CD32'
   };
 
   const emotionEmojis = {
@@ -76,64 +70,156 @@ export default function ContentDetail() {
     surprize: '😲'
   };
 
-  if (!content) return <p style={{ padding: '24px' }}>불러오는 중...</p>;
+  if (!content) return <p style={{ textAlign: 'center', padding: '24px' }}>불러오는 중…</p>;
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h2>{content.name}</h2>
-      <div style={{ display: 'flex', gap: '40px', marginBottom: '32px' }}>
-        <div style={{ flex: 2 }}>
-          <img src={`http://localhost:5000/${content.poster_url}`} alt={content.name} style={{ maxWidth: '300px' }} />
-          <p><strong>공개 연도:</strong> {content.year}</p>
-          <p><strong>배급사:</strong> {content.distributor}</p>
-          <p><strong>장르:</strong> {content.genres}</p>
-          <button onClick={handleDelete} style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px', border: 'none', borderRadius: '4px' }}>콘텐츠 삭제</button>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      padding: '24px'
+    }}>
+      <div style={{ maxWidth: '900px', width: '100%' }}>
+        {/* 상단: 목록 버튼 + 제목 + 삭제 버튼 */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '32px'
+        }}>
+          {/* 목록 버튼 */}
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              backgroundColor: '#fff',
+              color: '#333',
+              padding: '8px 12px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            목록
+          </button>
+          
+          <h2 style={{ margin: 0 }}>{content.name}</h2>
+          <button
+            onClick={handleDelete}
+            style={{
+              backgroundColor: '#fff',
+              color: '#333',
+              padding: '8px 12px',
+              border: '1px solid #ccc',    // ← 여기 수정
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            삭제
+          </button>
         </div>
 
-        <div style={{ flex: 1, border: '1px solid #ccc', borderRadius: '12px', padding: '16px' }}>
-          <h4>🔥 최다 누적 감정 분석</h4>
-          {topEmotion && topEmotion.emotion ? (
-            <>
-              <p><strong>감정:</strong> {topEmotion.emotion}</p>
-              <p><strong>비율:</strong> {topEmotion.percentage}%</p>
-              <h5>🕓 감정 타임라인</h5>
-              <div style={{ position: 'relative', height: '25px', backgroundColor: '#e0e0e0', borderRadius: '20px', marginTop: '12px' }}>
-                {emotions.map((e, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      position: 'absolute',
-                      left: `${(e.seconds / maxTime) * 100}%`,
-                      transform: 'translateX(-50%)',
-                      top: '-8px',
-                      fontSize: '20px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div className="tooltip-container">
-                      <span>{emotionEmojis[e.emotion] || ''}</span>
-                      <span className="tooltip-text">{e.timestamp}</span>
-                    </div>
+        {/* 상단: 이미지+정보(좌) / 기록(우) */}
+        <div style={{ display: 'flex', gap: '40px', marginBottom: '32px' }}>
+          {/* 좌측 컬럼 */}
+          <div style={{
+            flex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <img
+              src={`http://localhost:5000/${content.poster_url}`}
+              alt={content.name}
+              style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }}
+            />
+            <p><strong>공개 연도:</strong> {content.release_year}</p>
+            <p><strong>배급사:</strong> {content.distributor}</p>
+            <p><strong>장르:</strong> {content.genre}</p>
+
+            {/* 최다 누적 감정 분석 */}
+            <div style={{
+              border: '1px solid #ccc',     // ← 여기에도 동일하게
+              borderRadius: '12px',
+              padding: '16px',
+              marginTop: '24px'
+            }}>
+              <h4 style={{ marginTop: 0 }}>🔥 최다 누적 감정 분석</h4>
+              {topEmotion && topEmotion.emotion ? (
+                <>
+                  <p><strong>감정:</strong> {topEmotion.emotion}</p>
+                  <p><strong>비율:</strong> {topEmotion.percentage}%</p>
+
+                  <h5 style={{ margin: '16px 0 8px' }}>🕓 감정 타임라인</h5>
+                  <div style={{
+                    position: 'relative',
+                    height: '20px',
+                    width: '100%',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '20px'
+                  }}>
+                    {emotions.map((e, idx) => (
+                      <div key={idx} style={{
+                        position: 'absolute',
+                        left: `${(e.seconds / maxTime) * 100}%`,
+                        transform: 'translateX(-50%)',
+                        top: '-8px',
+                        fontSize: '24px',
+                        cursor: 'pointer'
+                      }}>
+                        <div className="tooltip-container">
+                          <span>{emotionEmojis[e.emotion] || ''}</span>
+                          <span className="tooltip-text">{e.timestamp}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </>
+              ) : (
+                <p>아직 Top 감정 기록이 없습니다.</p>
+              )}
+            </div>
+          </div>
+
+          {/* 우측 컬럼: 감정 분석 기록 */}
+          <div style={{
+            flex: 1,
+            border: '1px solid #ccc',     // ← 역시 동일
+            borderRadius: '12px',
+            padding: '16px'
+          }}>
+            <h4 style={{ marginTop: 0 }}>📊 감정 분석 기록</h4>
+            {history.length > 0 ? (
+              <div style={{ maxHeight: '400px', overflowY: 'auto', paddingLeft: '16px' }}>
+                <ul style={{ margin: 0 }}>
+                  {history.map((item, i) => (
+                    <li key={i} style={{ marginBottom: '4px' }}>
+                      {item.timestamp} – {item.emotion}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </>
-          ) : (
-            <p>아직 Top 감정 기록이 없습니다.</p>
-          )}
+            ) : (
+              <p style={{ margin: 0 }}>아직 분석 기록이 없습니다.</p>
+            )}
+          </div>
+        </div>
+
+        {/* 분석 시작 버튼 */}
+        <div style={{ textAlign: 'center' }}>
+          <button
+            onClick={handleStartAnalysis}
+            style={{
+              backgroundColor: '#fff',
+              color: '#333',
+              padding: '10px 20px',
+              border: '1px solid #ccc',   // ← 여기에도
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            감정 분석
+          </button>
         </div>
       </div>
-
-      <h4>📊 감정 분석 기록</h4>
-      {history.length > 0 ? (
-        <ul>
-          {history.map((item, index) => (
-            <li key={index}>{item.timestamp} - {item.emotion}</li>
-          ))}
-        </ul>
-      ) : <p>아직 분석 기록이 없습니다.</p>}
-
-      <button onClick={handleStartAnalysis} style={{ backgroundColor: '#28a745', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', marginTop: '24px' }}>감정 분석</button>
     </div>
   );
 }

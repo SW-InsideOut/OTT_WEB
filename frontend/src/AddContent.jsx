@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-
 export default function AddContent() {
-
   const navigate = useNavigate();
-
   const [form, setForm] = useState({
     name: '',
     release_year: new Date().getFullYear(),
@@ -21,30 +18,35 @@ export default function AddContent() {
   };
 
   const handleFileChange = (e) => {
-    setPoster(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setPoster(file);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) =>
       formData.append(key, value)
     );
     if (poster) formData.append('poster', poster);
-  
+
     try {
       const res = await axios.post('http://localhost:5000/add_content', formData);
       alert('콘텐츠가 등록되었습니다.');
-  
-      // 등록된 콘텐츠 ID로 이동
-      const contentId = res.data.content_id; // 이 값이 백엔드에서 반환되어야 함
-      window.location.href = `/content/${contentId}`;
+      const contentId = res.data.content_id;
+      navigate(`/content/${contentId}`);
     } catch (err) {
       alert('등록 실패: ' + err.message);
     }
   };
-  
+
+  const handleCancel = () => {
+    if (window.confirm('취소하시겠습니까? 입력한 내용은 저장되지 않습니다.')) {
+      navigate('/');
+    }
+  };
 
   return (
     <div
@@ -64,6 +66,23 @@ export default function AddContent() {
         }}
       >
         <h2 style={{ textAlign: 'center' }}>콘텐츠 등록</h2>
+
+        {/* 이미지 미리보기 */}
+        {poster && (
+          <div style={{ textAlign: 'center' }}>
+            <img
+              src={URL.createObjectURL(poster)}
+              alt="Poster Preview"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '330px',
+                objectFit: 'contain',
+                marginBottom: '10px',
+                borderRadius: '4px',
+              }}
+            />
+          </div>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <label style={{ width: '80px' }}>표지 이미지</label>
@@ -125,9 +144,36 @@ export default function AddContent() {
           />
         </div>
 
-        <button type="submit" style={{ marginTop: '12px' }}>
-          등록
-        </button>
+        {/* 등록 / 취소 버튼 */}
+        <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+          <button
+            type="submit"
+            style={{
+              flex: 1,
+              padding: '10px',
+              backgroundColor: '#fff',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            등록
+          </button>
+          <button
+            type="button"
+            onClick={handleCancel}
+            style={{
+              flex: 1,
+              padding: '10px',
+              backgroundColor: '#fff',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            취소
+          </button>
+        </div>
       </form>
     </div>
   );

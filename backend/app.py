@@ -11,7 +11,7 @@ from tensorflow.keras.models import load_model
 from db_config import get_connection
 import traceback
 
-app = Flask(__name__, static_url_path='', static_folder='static')
+app = Flask(__name__, static_url_path='/static', static_folder='static')
 CORS(app)
 
 model = load_model('best_model_GPU2.h5')
@@ -38,7 +38,7 @@ def add_content():
         conn = get_connection()
         with conn.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO contents (name, year, distributor, genres, poster_url)
+                INSERT INTO contents (name, release_year, distributor, genre, poster_url)
                 VALUES (%s, %s, %s, %s, %s)
             """, (name, year, distributor, genre, poster_url))
             conn.commit()
@@ -283,15 +283,12 @@ def get_emotions(content_id):
                 SELECT emotion, timestamp
                 FROM {table}
                 ORDER BY id DESC
-                LIMIT 3;
             """)
             rows = cursor.fetchall()
         return jsonify(rows)
-    except Exception as e:
-        print("[감정 조회 오류]", e)
-        return jsonify([]), 500
     finally:
         conn.close()
+
 
 # ----------------------------- 최신 Top 감정 1개 -----------------------------
 @app.route('/top_emotion/<int:content_id>', methods=['GET'])
