@@ -98,7 +98,7 @@ export default function ContentDetail() {
               cursor: 'pointer'
             }}
           >
-            목록
+            목록으로
           </button>
 
           <h2 style={{ margin: 0 }}>{content.name}</h2>
@@ -108,12 +108,12 @@ export default function ContentDetail() {
               backgroundColor: '#fff',
               color: '#333',
               padding: '8px 12px',
-              border: '1px solid #ccc',    // ← 여기 수정
+              border: '1px solid #ccc',
               borderRadius: '4px',
               cursor: 'pointer'
             }}
           >
-            삭제
+            콘텐츠 삭제
           </button>
         </div>
 
@@ -142,7 +142,7 @@ export default function ContentDetail() {
               padding: '16px',
               marginTop: '24px'
             }}>
-              <h4 style={{ marginTop: 0 }}>🔥 최다 누적 감정 분석</h4>
+              <h4 style={{ marginTop: 0 }}>최다 누적 감정 분석</h4>
               {topEmotion && topEmotion.emotion ? (
                 <>
                   <p><strong>감정:</strong> {topEmotion.emotion}</p>
