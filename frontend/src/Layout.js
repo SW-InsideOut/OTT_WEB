@@ -16,9 +16,14 @@ export default function Layout() {
         alignItems: 'center'
       }}>
         <h1 style={{ margin: 0 }}>InsideOut</h1>
-        <nav style={{ display: 'flex', gap: '16px' }}>
+        <nav style={{
+          display: 'flex', 
+          gap: '32px' 
+        }}>
             <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>홈</Link>
-            <Link to="login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
+            <Link to="Mypage" style={{ color: 'white', textDecoration: 'none' }}>마이페이지</Link>
+            <Link to="login" style={{ color: 'white', textDecoration: 'none' }}>로그아웃</Link>
+
         </nav>
       </header>
 

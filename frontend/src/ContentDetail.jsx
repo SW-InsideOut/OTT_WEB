@@ -100,7 +100,7 @@ export default function ContentDetail() {
           >
             목록
           </button>
-          
+
           <h2 style={{ margin: 0 }}>{content.name}</h2>
           <button
             onClick={handleDelete}
@@ -124,16 +124,16 @@ export default function ContentDetail() {
             flex: 2,
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px'
+            gap: '8px'
           }}>
             <img
               src={`http://localhost:5000/${content.poster_url}`}
               alt={content.name}
               style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }}
             />
-            <p><strong>공개 연도:</strong> {content.release_year}</p>
-            <p><strong>배급사:</strong> {content.distributor}</p>
-            <p><strong>장르:</strong> {content.genre}</p>
+            <p style={{ margin: '4px 0' }}><strong>공개 연도:</strong> {content.release_year}</p>
+            <p style={{ margin: '4px 0' }}><strong>배급사:</strong> {content.distributor}</p>
+            <p style={{ margin: '4px 0' }}><strong>장르:</strong> {content.genre}</p>
 
             {/* 최다 누적 감정 분석 */}
             <div style={{
@@ -182,13 +182,17 @@ export default function ContentDetail() {
           {/* 우측 컬럼: 감정 분석 기록 */}
           <div style={{
             flex: 1,
-            border: '1px solid #ccc',     // ← 역시 동일
+            border: '1px solid #ccc',     
             borderRadius: '12px',
             padding: '16px'
           }}>
             <h4 style={{ marginTop: 0 }}>📊 감정 분석 기록</h4>
             {history.length > 0 ? (
-              <div style={{ maxHeight: '400px', overflowY: 'auto', paddingLeft: '16px' }}>
+              <div style={{
+                            maxHeight: '650px',      /* ← 여기만 키웠습니다 */
+                            overflowY: 'auto',
+                            paddingLeft: '16px'
+                          }}>
                 <ul style={{ margin: 0 }}>
                   {history.map((item, i) => (
                     <li key={i} style={{ marginBottom: '4px' }}>
