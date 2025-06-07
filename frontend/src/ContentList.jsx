@@ -9,8 +9,8 @@ export default function ContentList() {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
-  // 한 페이지당 2행×6열 = 12개
-  const itemsPerPage = 12;
+  // 한 페이지당 3행×5열 = 15개
+  const itemsPerPage = 15;
 
   useEffect(() => {
     axios
@@ -63,7 +63,7 @@ export default function ContentList() {
         className="grid-container"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateColumns: "repeat(5, 1fr)",
           gap: "16px",
         }}
       >
