@@ -1,3 +1,7 @@
+import torch
+import torch.nn.functional as F
+from torchvision import transforms
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
@@ -7,14 +11,20 @@ import io
 import os
 from PIL import Image
 from datetime import datetime
-from tensorflow.keras.models import load_model
+from emotion_model import EfficientEmotion
 from db_config import get_connection
 import traceback
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 CORS(app)
 
-model = load_model('best_model_GPU2.h5')
+# 장치 설정
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model =EfficientEmotion().to(device)
+model.load_state_dict(torch.load('best_ferplus_emotion_model_efficient_surprise_focus.pth',map_location=device))
+model.eval()
+
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 class_labels = ['angry', 'happy', 'neutral', 'sad', 'surprize']
 analysis_start_times = {}  # 콘텐츠별 분석 시작 시각 저장용
@@ -136,7 +146,7 @@ def predict():
     if emotion != "no_face" and emotion != "error":
         start_time = analysis_start_times.get(content_id)
         if not start_time:
-            print("[❌오류] 감정 분석 시작 시점 없음")
+            print("[오류] 감정 분석 시작 시점 없음")
             return jsonify({'emotion': 'error', 'message': '분석 시작 안 됨'}), 400
 
         elapsed = datetime.now() - start_time
@@ -154,10 +164,10 @@ def predict():
 def analyze_emotion(base64_image):
     try:
         image_data = base64.b64decode(base64_image.split(',')[1])
-        image = Image.open(io.BytesIO(image_data)).convert('L')
+        image = Image.open(io.BytesIO(image_data)).convert('L')  # 흑백
         img_np = np.array(image)
-        faces = face_cascade.detectMultiScale(img_np, 1.3, 5)
 
+        faces = face_cascade.detectMultiScale(img_np, 1.3, 5)
         if len(faces) == 0:
             print("[감정 분석 실패] 얼굴 인식 안됨")
             return "no_face"
@@ -165,12 +175,19 @@ def analyze_emotion(base64_image):
         (x, y, w, h) = faces[0]
         face = img_np[y:y+h, x:x+w]
         face_resized = cv2.resize(face, (48, 48)) / 255.0
-        face_reshaped = np.expand_dims(face_resized, axis=(0, -1))
+        face_tensor = torch.tensor(face_resized, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
 
-        prediction = model.predict(face_reshaped, verbose=0)
-        label = class_labels[np.argmax(prediction)]
+        # PyTorch 추론
+        model.eval()
+        with torch.no_grad():
+            output = model(face_tensor)
+            probs = F.softmax(output, dim=1)
+            pred_idx = torch.argmax(probs, dim=1).item()
+            label = class_labels[pred_idx]
+
         print(f"[감정 분석 결과] {label}")
         return label
+
     except Exception as e:
         print("[감정 분석 중 오류 발생]", e)
         return "error"
