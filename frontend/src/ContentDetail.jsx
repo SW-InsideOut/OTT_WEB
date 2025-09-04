@@ -12,6 +12,14 @@ export default function ContentDetail() {
   const [emotions, setEmotions] = useState([]);
   const [maxTime, setMaxTime] = useState(0);
 
+  // 시간 문자열을 초 단위로 변환하는 함수
+  const timeStringToSeconds = (timeStr) => {
+    const parts = timeStr.split(':').map(Number);
+    return parts.reduce((acc, val, idx) =>
+      acc + val * Math.pow(60, parts.length - idx - 1), 0
+    , 0);
+  };
+
   useEffect(() => {
     axios.get(`http://localhost:5000/content/${id}`)
       .then(res => setContent(res.data))
@@ -35,13 +43,6 @@ export default function ContentDetail() {
       .catch(() => setTopEmotion(null));
   }, [id]);
 
-  const timeStringToSeconds = (timeStr) => {
-    const parts = timeStr.split(':').map(Number);
-    return parts.reduce((acc, val, idx) =>
-      acc + val * Math.pow(60, parts.length - idx - 1), 0
-    , 0);
-  };
-
   const handleDelete = async () => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
     try {
@@ -53,6 +54,7 @@ export default function ContentDetail() {
     }
   };
 
+  /*
   const handleStartAnalysis = async () => {
     try {
       await axios.post(`http://localhost:5000/start_analysis/${id}`);
@@ -61,6 +63,11 @@ export default function ContentDetail() {
       alert('분석 시작에 실패했습니다.');
     }
   };
+*/
+
+const handleAddUser = () => {
+  navigate('/adduser');
+};
 
   const emotionEmojis = {
     happy: '😊',
@@ -90,10 +97,10 @@ export default function ContentDetail() {
           <button
             onClick={() => navigate('/')}
             style={{
-              backgroundColor: '#fff',
-              color: '#333',
+              backgroundColor: '#2b2b2b',    // 배경색을 어둡게
+              color: '#e0e0e0',              // 글자색을 밝게
               padding: '8px 12px',
-              border: '1px solid #ccc',
+              border: '1px solid #e0e0e0',  // 테두리를 밝은 색으로
               borderRadius: '4px',
               cursor: 'pointer'
             }}
@@ -105,15 +112,15 @@ export default function ContentDetail() {
           <button
             onClick={handleDelete}
             style={{
-              backgroundColor: '#fff',
-              color: '#333',
+              backgroundColor: '#2b2b2b',    // 배경색 동일
+              color: '#e0e0e0',              // 글자 밝게
               padding: '8px 12px',
-              border: '1px solid #ccc',
+              border: '1px solid #e0e0e0',  // 테두리 밝게
               borderRadius: '4px',
               cursor: 'pointer'
             }}
           >
-            콘텐츠 삭제
+            삭제하기
           </button>
         </div>
 
@@ -210,7 +217,7 @@ export default function ContentDetail() {
         {/* 분석 시작 버튼 */}
         <div style={{ textAlign: 'center' }}>
           <button
-            onClick={handleStartAnalysis}
+            onClick={handleAddUser}
             style={{
               backgroundColor: '#fff',
               color: '#333',

@@ -10,12 +10,12 @@ export default function Layout() {
       <header style={{
         backgroundColor: '#24292f',
         color: 'white',
-        padding: '16px',
+        padding: '16px 48px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <h1 style={{ margin: 0 }}>InsideOut</h1>
+        <h1 style={{ margin: 0, color: '#DB3A00', fontSize: '38px' }}>InsideOut</h1>
         <nav style={{
           display: 'flex', 
           gap: '32px' 
@@ -34,11 +34,11 @@ export default function Layout() {
 
       {/* 🔽 푸터 */}
       <footer style={{
-        backgroundColor: '#f1f1f1',
+        backgroundColor: '#24292f',
         padding: '16px',
         textAlign: 'center',
         fontSize: '14px',
-        color: '#888'
+        color: '#e0e0e0'
       }}>
         © 2025 OTT 콘텐츠 감정 분석 시스템 - Inside Out Team
       </footer>

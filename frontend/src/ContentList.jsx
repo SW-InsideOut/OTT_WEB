@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./ContentList.css";
+import { FaSearch } from "react-icons/fa";
+
 
 export default function ContentList() {
   const [contents, setContents] = useState([]);
@@ -10,7 +12,7 @@ export default function ContentList() {
   const navigate = useNavigate();
 
   // 한 페이지당 3행×5열 = 15개
-  const itemsPerPage = 15;
+  const itemsPerPage = 24;
 
   useEffect(() => {
     axios
@@ -41,7 +43,6 @@ export default function ContentList() {
 
   return (
     <div className="content-list-container">
-      <h1>🎬 콘텐츠 목록</h1>
 
       <div className="search-and-button">
         <input
@@ -50,7 +51,7 @@ export default function ContentList() {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <button className="search-button">검색</button>
+        <button className="search-button"><FaSearch /></button>
         <button
           className="register-button"
           onClick={() => navigate("/add")}
@@ -77,7 +78,6 @@ export default function ContentList() {
               src={`http://localhost:5000/${content.poster_url}`}
               alt={content.name}
             />
-            <p>{content.name}</p>
           </div>
         ))}
       </div>
