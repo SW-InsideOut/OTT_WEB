@@ -100,7 +100,7 @@ export default function ContentDetail() {
                   <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;
                     <strong>시청자 수:</strong> {content.viewer_count}명
                   </p>
-                  <h5 style={{ margin: '16px 0 8px' }}>🕓 감정 타임라인</h5>
+                  <h5 style={{ margin: '16px 0 8px' }}>감정 타임라인</h5>
                   <div style={{
                     position: 'relative',
                     height: '20px',
@@ -138,7 +138,7 @@ export default function ContentDetail() {
             borderRadius: '12px',
             padding: '16px'
           }}>
-            <h4 style={{ marginTop: 0 }}>📊 감정 분석 기록</h4>
+            <h4 style={{ marginTop: 0 }}>감정 분석 기록</h4>
             {history.length > 0 ? (
               <div style={{ maxHeight: '650px', overflowY: 'auto', paddingLeft: '16px' }}>
                 <ul style={{ margin: 0 }}>
