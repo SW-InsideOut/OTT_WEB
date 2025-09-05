@@ -61,85 +61,45 @@ export default function ContentDetail() {
     surprize: '😲'
   };
 
+  const handleStartSurvey = () => {
+    navigate(`/survey/${id}`);
+  };
+
   if (!content) return <p style={{ textAlign: 'center', padding: '24px' }}>불러오는 중…</p>;
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
       <div style={{ maxWidth: '900px', width: '100%' }}>
-        
-        {/* 상단: 목록 버튼 + 제목 + 삭제 버튼 */}
+
+        {/* 상단: 제목, 삭제, 목록 */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '32px'
         }}>
-          <button
-            onClick={() => navigate('/')}
-            style={{
-              backgroundColor: '#fff',
-              color: '#333',
-              padding: '8px 12px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            목록으로
-          </button>
-
+          <button onClick={() => navigate('/')} style={btnStyle}>목록으로</button>
           <h2 style={{ margin: 0 }}>{content.name}</h2>
-
-          <button
-            onClick={handleDelete}
-            style={{
-              backgroundColor: '#fff',
-              color: '#333',
-              padding: '8px 12px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            콘텐츠 삭제
-          </button>
+          <button onClick={handleDelete} style={btnStyle}>콘텐츠 삭제</button>
         </div>
 
-        {/* 이미지 + 정보 + 분석 */}
+        {/* 콘텐츠 정보 + 감정 분석 정보 */}
         <div style={{ display: 'flex', gap: '40px', marginBottom: '32px' }}>
-          
-          {/* 좌측: 이미지 + 기본정보 */}
-          <div style={{
-            flex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
-            <img
-              src={`http://localhost:5000/${content.poster_url}`}
-              alt={content.name}
-              style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }}
-            />
+          {/* 왼쪽: 정보 */}
+          <div style={{ flex: 2 }}>
+            <img src={`http://localhost:5000/${content.poster_url}`} alt={content.name} style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }} />
             <p><strong>공개 연도:</strong> {content.release_year}</p>
             <p><strong>배급사:</strong> {content.distributor}</p>
             <p><strong>장르:</strong> {content.genre}</p>
 
-            {/* 최다 감정 */}
-            <div style={{
-              border: '1px solid #ccc',
-              borderRadius: '12px',
-              padding: '16px',
-              marginTop: '24px'
-            }}>
+            <div style={{ border: '1px solid #ccc', borderRadius: '12px', padding: '16px', marginTop: '24px' }}>
               <h4 style={{ marginTop: 0 }}>최다 누적 감정 분석</h4>
               {topEmotion && topEmotion.emotion ? (
                 <>
                   <p><strong>감정:</strong> {topEmotion.emotion}</p>
-                  <p>
-                    <strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;
+                  <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;
                     <strong>시청자 수:</strong> {content.viewer_count}명
                   </p>
-
                   <h5 style={{ margin: '16px 0 8px' }}>🕓 감정 타임라인</h5>
                   <div style={{
                     position: 'relative',
@@ -171,7 +131,7 @@ export default function ContentDetail() {
             </div>
           </div>
 
-          {/* 우측: 감정 분석 기록 */}
+          {/* 오른쪽: 감정 분석 기록 */}
           <div style={{
             flex: 1,
             border: '1px solid #ccc',
@@ -180,11 +140,7 @@ export default function ContentDetail() {
           }}>
             <h4 style={{ marginTop: 0 }}>📊 감정 분석 기록</h4>
             {history.length > 0 ? (
-              <div style={{
-                maxHeight: '650px',
-                overflowY: 'auto',
-                paddingLeft: '16px'
-              }}>
+              <div style={{ maxHeight: '650px', overflowY: 'auto', paddingLeft: '16px' }}>
                 <ul style={{ margin: 0 }}>
                   {history.map((item, i) => (
                     <li key={i} style={{ marginBottom: '4px' }}>
@@ -199,23 +155,24 @@ export default function ContentDetail() {
           </div>
         </div>
 
-        {/* 감정 분석 버튼 → 설문 페이지로 이동 */}
-        <div style={{ textAlign: 'center' }}>
-          <button
-            onClick={() => navigate(`/survey/${id}`)}
-            style={{
-              backgroundColor: '#fff',
-              color: '#333',
-              padding: '10px 20px',
-              border: '1px solid #ccc',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
+        {/* 감정 분석 버튼 */}
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <button onClick={handleStartSurvey} style={btnStyle}>
             감정 분석
           </button>
         </div>
+
       </div>
     </div>
   );
 }
+
+// 버튼 공통 스타일
+const btnStyle = {
+  backgroundColor: '#fff',
+  color: '#333',
+  padding: '10px 20px',
+  border: '1px solid #ccc',
+  borderRadius: '5px',
+  cursor: 'pointer'
+};

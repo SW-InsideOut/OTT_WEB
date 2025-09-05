@@ -6,6 +6,7 @@ import ContentList from './ContentList';
 import ContentDetail from './ContentDetail';
 import AddContent from './AddContent';
 import FrameCut from './FrameCut';
+import SurveyForm from './SurveyForm';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route index element={<ContentList />} />
           <Route path="add" element={<AddContent />} />
           <Route path="content/:id" element={<ContentDetail />} />
+          <Route path="survey/:id" element={<SurveyForm />} />
           <Route path="capture/:id" element={<FrameCut />} />
         </Route>
       </Routes>

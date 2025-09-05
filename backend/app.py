@@ -147,6 +147,43 @@ def delete_content(content_id):
     finally:
         conn.close()
 
+# ----------------------------- 설문 저장 API -----------------------------
+@app.route('/survey', methods=['POST'])
+def submit_survey():
+    data = request.json
+    content_id = data.get('content_id')
+    gender = data.get('gender')
+    age_group = data.get('age_group')
+
+    if not all([content_id, gender, age_group]):
+        return jsonify({'error': '필수 항목이 누락되었습니다.'}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    sql = "INSERT INTO survey (content_id, gender, age_group) VALUES (%s, %s, %s)"
+    cursor.execute(sql, (content_id, gender, age_group))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'message': '설문 응답이 저장되었습니다.'}), 200
+
+# ----------------------------- 콘텐츠별 설문 데이터 조회 -----------------------------
+@app.route('/survey/<int:content_id>', methods=['GET'])
+def get_survey_results(content_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    sql = """
+        SELECT gender, age_group, COUNT(*) AS count
+        FROM survey
+        WHERE content_id = %s
+        GROUP BY gender, age_group
+    """
+    cursor.execute(sql, (content_id,))
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(results)
+
 # ----------------------------- 감정 분석 -----------------------------
 @app.route('/predict', methods=['POST'])
 def predict():
