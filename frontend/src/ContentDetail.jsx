@@ -12,14 +12,6 @@ export default function ContentDetail() {
   const [emotions, setEmotions] = useState([]);
   const [maxTime, setMaxTime] = useState(0);
 
-  // 시간 문자열을 초 단위로 변환하는 함수
-  const timeStringToSeconds = (timeStr) => {
-    const parts = timeStr.split(':').map(Number);
-    return parts.reduce((acc, val, idx) =>
-      acc + val * Math.pow(60, parts.length - idx - 1), 0
-    , 0);
-  };
-
   useEffect(() => {
     axios.get(`http://localhost:5000/content/${id}`)
       .then(res => setContent(res.data))
@@ -43,6 +35,13 @@ export default function ContentDetail() {
       .catch(() => setTopEmotion(null));
   }, [id]);
 
+  const timeStringToSeconds = (timeStr) => {
+    const parts = timeStr.split(':').map(Number);
+    return parts.reduce((acc, val, idx) =>
+      acc + val * Math.pow(60, parts.length - idx - 1), 0
+    , 0);
+  };
+
   const handleDelete = async () => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
     try {
@@ -53,21 +52,6 @@ export default function ContentDetail() {
       alert('삭제 실패: ' + err.message);
     }
   };
-
-  /*
-  const handleStartAnalysis = async () => {
-    try {
-      await axios.post(`http://localhost:5000/start_analysis/${id}`);
-      navigate(`/capture/${id}`);
-    } catch {
-      alert('분석 시작에 실패했습니다.');
-    }
-  };
-*/
-
-const handleAddUser = () => {
-  navigate('/adduser');
-};
 
   const emotionEmojis = {
     happy: '😊',
@@ -80,12 +64,9 @@ const handleAddUser = () => {
   if (!content) return <p style={{ textAlign: 'center', padding: '24px' }}>불러오는 중…</p>;
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      padding: '24px'
-    }}>
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
       <div style={{ maxWidth: '900px', width: '100%' }}>
+        
         {/* 상단: 목록 버튼 + 제목 + 삭제 버튼 */}
         <div style={{
           display: 'flex',
@@ -93,14 +74,13 @@ const handleAddUser = () => {
           alignItems: 'center',
           marginBottom: '32px'
         }}>
-          {/* 목록 버튼 */}
           <button
             onClick={() => navigate('/')}
             style={{
-              backgroundColor: '#2b2b2b',    // 배경색을 어둡게
-              color: '#e0e0e0',              // 글자색을 밝게
+              backgroundColor: '#fff',
+              color: '#333',
               padding: '8px 12px',
-              border: '1px solid #e0e0e0',  // 테두리를 밝은 색으로
+              border: '1px solid #ccc',
               borderRadius: '4px',
               cursor: 'pointer'
             }}
@@ -109,24 +89,26 @@ const handleAddUser = () => {
           </button>
 
           <h2 style={{ margin: 0 }}>{content.name}</h2>
+
           <button
             onClick={handleDelete}
             style={{
-              backgroundColor: '#2b2b2b',    // 배경색 동일
-              color: '#e0e0e0',              // 글자 밝게
+              backgroundColor: '#fff',
+              color: '#333',
               padding: '8px 12px',
-              border: '1px solid #e0e0e0',  // 테두리 밝게
+              border: '1px solid #ccc',
               borderRadius: '4px',
               cursor: 'pointer'
             }}
           >
-            삭제하기
+            콘텐츠 삭제
           </button>
         </div>
 
-        {/* 상단: 이미지+정보(좌) / 기록(우) */}
+        {/* 이미지 + 정보 + 분석 */}
         <div style={{ display: 'flex', gap: '40px', marginBottom: '32px' }}>
-          {/* 좌측 컬럼 */}
+          
+          {/* 좌측: 이미지 + 기본정보 */}
           <div style={{
             flex: 2,
             display: 'flex',
@@ -138,13 +120,13 @@ const handleAddUser = () => {
               alt={content.name}
               style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }}
             />
-            <p style={{ margin: '4px 0' }}><strong>공개 연도:</strong> {content.release_year}</p>
-            <p style={{ margin: '4px 0' }}><strong>배급사:</strong> {content.distributor}</p>
-            <p style={{ margin: '4px 0' }}><strong>장르:</strong> {content.genre}</p>
+            <p><strong>공개 연도:</strong> {content.release_year}</p>
+            <p><strong>배급사:</strong> {content.distributor}</p>
+            <p><strong>장르:</strong> {content.genre}</p>
 
-            {/* 최다 누적 감정 분석 */}
+            {/* 최다 감정 */}
             <div style={{
-              border: '1px solid #ccc',     // ← 여기에도 동일하게
+              border: '1px solid #ccc',
               borderRadius: '12px',
               padding: '16px',
               marginTop: '24px'
@@ -153,7 +135,10 @@ const handleAddUser = () => {
               {topEmotion && topEmotion.emotion ? (
                 <>
                   <p><strong>감정:</strong> {topEmotion.emotion}</p>
-                  <p><strong>비율:</strong> {topEmotion.percentage}%</p>
+                  <p>
+                    <strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;
+                    <strong>시청자 수:</strong> {content.viewer_count}명
+                  </p>
 
                   <h5 style={{ margin: '16px 0 8px' }}>🕓 감정 타임라인</h5>
                   <div style={{
@@ -186,20 +171,20 @@ const handleAddUser = () => {
             </div>
           </div>
 
-          {/* 우측 컬럼: 감정 분석 기록 */}
+          {/* 우측: 감정 분석 기록 */}
           <div style={{
             flex: 1,
-            border: '1px solid #ccc',     
+            border: '1px solid #ccc',
             borderRadius: '12px',
             padding: '16px'
           }}>
             <h4 style={{ marginTop: 0 }}>📊 감정 분석 기록</h4>
             {history.length > 0 ? (
               <div style={{
-                            maxHeight: '650px',      /* ← 여기만 키웠습니다 */
-                            overflowY: 'auto',
-                            paddingLeft: '16px'
-                          }}>
+                maxHeight: '650px',
+                overflowY: 'auto',
+                paddingLeft: '16px'
+              }}>
                 <ul style={{ margin: 0 }}>
                   {history.map((item, i) => (
                     <li key={i} style={{ marginBottom: '4px' }}>
@@ -214,15 +199,15 @@ const handleAddUser = () => {
           </div>
         </div>
 
-        {/* 분석 시작 버튼 */}
+        {/* 감정 분석 버튼 → 설문 페이지로 이동 */}
         <div style={{ textAlign: 'center' }}>
           <button
-            onClick={handleAddUser}
+            onClick={() => navigate(`/survey/${id}`)}
             style={{
               backgroundColor: '#fff',
               color: '#333',
               padding: '10px 20px',
-              border: '1px solid #ccc',   // ← 여기에도
+              border: '1px solid #ccc',
               borderRadius: '5px',
               cursor: 'pointer'
             }}

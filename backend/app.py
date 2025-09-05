@@ -65,6 +65,18 @@ def add_content():
 def start_analysis(content_id):
     analysis_start_times[content_id] = datetime.now()
     print(f"[감정 분석 시작] 콘텐츠 {content_id} → 기준 시각: {analysis_start_times[content_id]}")
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # 시청자 수 증가
+            cursor.execute("""
+                UPDATE contents SET viewer_count = viewer_count + 1 WHERE id = %s
+            """, (content_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
     return jsonify({'status': 'started'})
 
 # ----------------------------- 콘텐츠별 감정 테이블 생성 -----------------------------
