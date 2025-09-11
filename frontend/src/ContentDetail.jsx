@@ -65,6 +65,10 @@ export default function ContentDetail() {
     navigate(`/survey/${id}`);
   };
 
+  const handleOpenViewerList = () => {
+    navigate(`/viewers/${id}`); // ViewerList.jsx와 매핑된 라우트 경로
+  };
+
   if (!content) return <p style={{ textAlign: 'center', padding: '24px' }}>불러오는 중…</p>;
 
   return (
@@ -156,9 +160,17 @@ export default function ContentDetail() {
         </div>
 
         {/* 감정 분석 버튼 */}
-        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '12px',
+          marginTop: '40px'
+        }}>
           <button onClick={handleStartSurvey} style={btnStyle}>
             감정 분석
+          </button>
+          <button onClick={handleOpenViewerList} style={btnStyle}>
+            시청자 목록
           </button>
         </div>
 
