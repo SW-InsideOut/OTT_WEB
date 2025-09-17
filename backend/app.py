@@ -185,6 +185,71 @@ def get_survey_results(content_id):
     conn.close()
     return jsonify(results)
 
+# ----------------------------- 콘텐츠별 설문 결과 출력 -----------------------------
+@app.route('/survey/summary/<int:content_id>', methods=['GET'])
+def get_survey_summary(content_id):
+    table = f"survey_{content_id}"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT gender, COUNT(*) AS count
+                FROM {table}
+                GROUP BY gender
+                ORDER BY count DESC
+                LIMIT 1
+            """)
+            gender_result = cursor.fetchone()
+
+            cursor.execute(f"""
+                SELECT age_group, COUNT(*) AS count
+                FROM {table}
+                GROUP BY age_group
+                ORDER BY count DESC
+                LIMIT 1
+            """)
+            age_result = cursor.fetchone()
+
+        return jsonify({
+            "top_gender": gender_result["gender"] if gender_result else "없음",
+            "top_age_group": age_result["age_group"] if age_result else "없음"
+        })
+    finally:
+        conn.close()
+
+# ----------------------------- 콘텐츠별 설문 결과 조회 -----------------------------
+@app.route('/survey/stats/<int:content_id>', methods=['GET'])
+def get_survey_stats(content_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT gender, COUNT(*) as count
+                FROM survey
+                WHERE content_id = %s
+                GROUP BY gender
+                ORDER BY count DESC
+                LIMIT 1
+            """, (content_id,))
+            gender_result = cursor.fetchone()
+
+            cursor.execute("""
+                SELECT age_group, COUNT(*) as count
+                FROM survey
+                WHERE content_id = %s
+                GROUP BY age_group
+                ORDER BY count DESC
+                LIMIT 1
+            """, (content_id,))
+            age_result = cursor.fetchone()
+
+        return jsonify({
+            'most_gender': gender_result['gender'] if gender_result else None,
+            'most_age_group': age_result['age_group'] if age_result else None
+        })
+    finally:
+        conn.close()
+
 # ----------------------------- 감정 분석 -----------------------------
 @app.route('/predict', methods=['POST'])
 def predict():
