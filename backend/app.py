@@ -28,6 +28,7 @@ model.eval()
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 class_labels = ['angry', 'happy', 'neutral', 'sad', 'surprize']
 analysis_start_times = {}  # 콘텐츠별 분석 시작 시각 저장용
+last_emotion_per_content = {}  # content_id별 마지막 저장된 감정 저장용
 
 # ----------------------------- 콘텐츠 등록 -----------------------------
 @app.route('/add_content', methods=['POST'])
@@ -243,13 +244,21 @@ def analyze_emotion(base64_image):
 
 # ----------------------------- 감정 DB 저장 -----------------------------
 def save_emotion_to_db(content_id, emotion, timestamp):
+    global last_emotion_per_content
     table = f"emotions_{content_id}"
+
+    # 마지막 감정이 같으면 저장하지 않음
+    if last_emotion_per_content.get(content_id) == emotion:
+        print(f"[저장 생략] 콘텐츠 {content_id} → 같은 감정({emotion}) 반복")
+        return
+
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
             sql = f"INSERT INTO {table} (emotion, timestamp) VALUES (%s, %s)"
             cursor.execute(sql, (emotion, timestamp))
         conn.commit()
+        last_emotion_per_content[content_id] = emotion  # 마지막 감정 업데이트
         print(f"[DB 저장 성공] 감정: {emotion}, 시간: {timestamp}")
     except Exception as e:
         print("[DB 저장 실패]", e)
