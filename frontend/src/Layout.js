@@ -28,7 +28,7 @@ export default function Layout() {
       </header>
 
       {/* 📄 페이지 내용 */}
-      <main style={{ flex: 1, padding: '24px' }}>
+      <main style={{ flex: 1, padding: '24px 24px 80px' }}>
         <Outlet />
       </main>
 
