@@ -1,18 +1,22 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 export default function FrameCut() {
-  const { id } = useParams(); // URL에서 콘텐츠 ID 추출
-  const contentId = parseInt(id, 10); // 숫자로 변환
+  const { id } = useParams();                 // URL에서 콘텐츠 ID 추출
+  const contentId = parseInt(id, 10);         // 숫자로 변환
+  const location = useLocation();             // navigate로 전달된 state 읽기
+  const userId = location.state?.userId;      // 설문 완료 후 전달된 userId
   const videoRef = useRef(null);
-  const intervalRef = useRef(null); // 캡처 간격 ID 보관
+  const intervalRef = useRef(null);
   const navigate = useNavigate();
   const [records, setRecords] = useState([]); // 실시간 감정 기록
 
+  // 실시간 캡처 & 서버 전송
   const captureAndSend = async () => {
-    if (!videoRef.current || isNaN(contentId)) return;
+    console.log("captureAndSend called", { contentId, userId });
+    if (!videoRef.current || isNaN(contentId) || !userId) return;
 
-    // 캔버스 생성 및 프레임 캡처
+    // --- 캔버스 생성 및 프레임 캡처 ---
     const canvas = document.createElement("canvas");
     canvas.width = 320;
     canvas.height = 240;
@@ -22,18 +26,21 @@ export default function FrameCut() {
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
     const image = canvas.toDataURL("image/jpeg");
 
-    // 서버로 전송
+    // --- 서버로 전송 ---
     try {
       const res = await fetch("http://localhost:5000/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image, content_id: contentId }),
+        body: JSON.stringify({
+          image,
+          content_id: contentId,
+          user_id: userId, 
+        }),
       });
 
       const data = await res.json();
       const emotion = data.emotion;
-      const time = new Date().toLocaleTimeString();
-      // 최근 15개만 유지
+      const time = new Date().toLocaleTimeString("ko-KR", { hour12: false });
       setRecords((prev) => [{ emotion, time }, ...prev].slice(0, 15));
       console.log("감정:", emotion);
     } catch (err) {
@@ -42,17 +49,23 @@ export default function FrameCut() {
   };
 
   useEffect(() => {
+    // userId가 준비된 경우에만 interval 시작
+    if (!userId) {
+      console.warn("userId 없음 → 분석 대기 중");
+      return;
+    }
+
     // 웹캠 시작
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    });
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      })
+      .catch((err) => console.error("카메라 접근 실패:", err));
 
     // 3초마다 프레임 캡처 및 전송
     intervalRef.current = setInterval(captureAndSend, 3000);
     return () => clearInterval(intervalRef.current);
-  }, [contentId]);
+  }, [contentId, userId]); // userId 값이 들어온 뒤 시작
 
   const handleStop = () => {
     clearInterval(intervalRef.current);

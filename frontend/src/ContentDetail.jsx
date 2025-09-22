@@ -55,7 +55,7 @@ export default function ContentDetail() {
       .catch(() => setTopEmotion(null));
 
     // 설문 요약 정보 가져오기
-    axios.get(`http://localhost:5000/survey/stats/${id}`)
+    axios.get(`http://localhost:5000/users/stats/${id}`)
       .then(res => {
         setMostGender(res.data.most_gender || '정보 없음');
         setMostAgeGroup(res.data.most_age_group || '정보 없음');
