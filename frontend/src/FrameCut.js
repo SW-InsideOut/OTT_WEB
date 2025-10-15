@@ -40,7 +40,7 @@ export default function FrameCut() {
 
       const data = await res.json();
       const emotion = data.emotion;
-      const time = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+      const time = data.timestamp; 
       setRecords((prev) => [{ emotion, time }, ...prev].slice(0, 15));
       console.log("감정:", emotion);
     } catch (err) {

@@ -230,6 +230,8 @@ def predict():
         save_emotion_to_db(content_id, user_id, emotion, timestamp)
         update_top_emotion(content_id)
 
+        return jsonify({'emotion': emotion, 'timestamp': timestamp})
+
     return jsonify({'emotion': emotion})
 
 def analyze_emotion(base64_image):
