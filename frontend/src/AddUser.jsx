@@ -43,15 +43,7 @@ export default function AddUser() {
 
       <button
         onClick={handleStartAnalysis}
-        style={{
-          backgroundColor: "#2b2b2b",
-          color: "#e0e0e0",
-          border: "1px solid #e0e0e0",
-          borderRadius: 4,
-          padding: "10px 20px",
-          cursor: "pointer",
-          fontSize: 16
-        }}
+        className="action-button"
       >
         감정 분석 시작
       </button>

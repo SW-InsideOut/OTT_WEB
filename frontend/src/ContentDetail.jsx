@@ -126,9 +126,9 @@ export default function ContentDetail() {
           alignItems: 'center',
           marginBottom: '32px'
         }}>
-          <button onClick={() => navigate('/')} style={btnStyle}>목록으로</button>
+          <button onClick={() => navigate('/')} className="action-button">목록으로</button>
           <h2 style={{ margin: 0 }}>{content.name}</h2>
-          <button onClick={handleDelete} style={btnStyle}>콘텐츠 삭제</button>
+          <button onClick={handleDelete} className="action-button">콘텐츠 삭제</button>
         </div>
 
         {/* 콘텐츠 정보 + 감정 분석 정보 */}
@@ -141,28 +141,14 @@ export default function ContentDetail() {
             <p><strong>장르:</strong> {content.genre}</p>
 
             <div style={{ border: '1px solid #ccc', borderRadius: '12px', padding: '16px', marginTop: '24px' }}>
-              <h4 style={{ marginTop: 0 }}>최다 누적 감정 분석</h4>
+              <h4 style={{ marginTop: 0 }}>감정 분석 결과</h4>
               {topEmotion && topEmotion.emotion ? (
                 <>
-                  <p><strong>감정:</strong> {topEmotion.emotion}</p>
-                  <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;
-                    <strong>시청자 수:</strong> {content.viewer_count}명
-                  </p>
-
-                  {/* 상세 정보 토글 버튼 */}
-                  <div style={{ marginTop: '8px' }}>
-                    <button onClick={() => setShowDetails(!showDetails)} style={btnStyle}>
-                      {showDetails ? '간략히 보기' : '상세 정보 더보기'}
-                    </button>
-                  </div>
-
-                  {/* 설문 상세 정보 */}
-                  {showDetails && (
-                    <div style={{ marginTop: '12px', paddingLeft: '4px' }}>
-                      <p><strong>가장 많은 성별:</strong> {genderMap[mostGender] || '정보 없음'}</p>
+                  <p><strong>최다 누적 감정:</strong> {topEmotion.emotion}</p>
+                  <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;</p>
+                  <p><strong>시청자 수:</strong> {content.viewer_count}명</p>
+                  <p><strong>가장 많은 성별:</strong> {genderMap[mostGender] || '정보 없음'}</p>
                       <p><strong>가장 많은 연령대:</strong> {ageGroupMap[mostAgeGroup] || '정보 없음'}</p>
-                    </div>
-                  )}
 
                   <h5 style={{ margin: '16px 0 8px' }}>감정 타임라인</h5>
                   <div style={{
@@ -226,12 +212,10 @@ export default function ContentDetail() {
           gap: '12px',
           marginTop: '40px'
         }}>
-          <button onClick={handleStartSurvey} style={btnStyle}>
+          <button onClick={handleStartSurvey} className="action-button">
             감정 분석
           </button>
-          <button onClick={handleOpenViewerList} style={btnStyle}>
-            시청자 목록
-          </button>
+          
         </div>
 
       </div>
@@ -239,12 +223,3 @@ export default function ContentDetail() {
   );
 }
 
-// 버튼 스타일
-const btnStyle = {
-  backgroundColor: '#fff',
-  color: '#333',
-  padding: '10px 20px',
-  border: '1px solid #ccc',
-  borderRadius: '5px',
-  cursor: 'pointer'
-};

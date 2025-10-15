@@ -48,10 +48,10 @@ export default function SurveyForm() {
         maxWidth: "480px",
         margin: "60px auto",
         padding: 24,
-        border: "1px solid #ccc",
+        border: "1px solid #1D5385",
         borderRadius: "8px",
-        background: "#2b2b2b",
-        color: "#e0e0e0",
+        background: "#F9F4EB",
+        color: "#000000",
       }}
     >
       <h2 style={{ textAlign: "center" }}>감정 분석 전 설문조사</h2>
@@ -94,9 +94,8 @@ export default function SurveyForm() {
             width: "100%",
             padding: "10px",
             border: "none",
-            backgroundColor: "#e0e0e0",
-            color: "#2b2b2b",
-            fontWeight: "bold",
+            backgroundColor: "#1D5385",
+            color: "#F9F4EB",
             borderRadius: "4px",
             cursor: "pointer",
           }}
