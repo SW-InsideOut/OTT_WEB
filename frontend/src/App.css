@@ -65,6 +65,43 @@ body {
   opacity: 1;
 }
 
+
+/* 버튼 공통 스타일 */
+.action-button {
+  background-color: #1D5385;
+  color: #FFFFFF;
+  border: 1px solid #1D5385;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* 마우스 올렸을 때 효과 */
+.action-button:hover {
+  background-color: #163d64;
+  color: #f9f4eb;
+}
+
+/* 배경색이랑 버튼이 같은 버전*/
+.detail-button {
+  background-color: #F9F4EB;
+  color: #1D5385;
+  border: 1px solid #1D5385;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.detail-button:hover {
+  background-color: #163d64;
+  color: #f9f4eb;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

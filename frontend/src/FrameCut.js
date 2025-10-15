@@ -98,14 +98,7 @@ export default function FrameCut() {
         <div style={{ marginTop: "16px" }}>
           <button
             onClick={handleStop}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#fff",
-              color: "#333",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
+            className="action-button"
           >
             분석 종료
           </button>
@@ -114,7 +107,7 @@ export default function FrameCut() {
 
       {/* 실시간 감정 기록 */}
       <div style={{ width: "300px" }}>
-        <h3>🕒 실시간 기록</h3>
+        <h3>실시간 기록</h3>
         <ul
           style={{
             listStyle: "none",
