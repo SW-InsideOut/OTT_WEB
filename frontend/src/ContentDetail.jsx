@@ -145,24 +145,10 @@ export default function ContentDetail() {
               {topEmotion && topEmotion.emotion ? (
                 <>
                   <p><strong>최다 누적 감정:</strong> {topEmotion.emotion}</p>
-                  <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;
-                    <strong>시청자 수:</strong> {content.viewer_count}명
-                  </p>
-
-                  {/* 상세 정보 토글 버튼 */}
-                  <div style={{ marginTop: '8px' }}>
-                    <button onClick={() => setShowDetails(!showDetails)} className="detail-button">
-                      {showDetails ? '간략히 보기' : '상세 정보 더보기'}
-                    </button>
-                  </div>
-
-                  {/* 설문 상세 정보 */}
-                  {showDetails && (
-                    <div style={{ marginTop: '12px', paddingLeft: '4px' }}>
-                      <p><strong>가장 많은 성별:</strong> {genderMap[mostGender] || '정보 없음'}</p>
+                  <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;</p>
+                  <p><strong>시청자 수:</strong> {content.viewer_count}명</p>
+                  <p><strong>가장 많은 성별:</strong> {genderMap[mostGender] || '정보 없음'}</p>
                       <p><strong>가장 많은 연령대:</strong> {ageGroupMap[mostAgeGroup] || '정보 없음'}</p>
-                    </div>
-                  )}
 
                   <h5 style={{ margin: '16px 0 8px' }}>감정 타임라인</h5>
                   <div style={{
@@ -229,9 +215,7 @@ export default function ContentDetail() {
           <button onClick={handleStartSurvey} className="action-button">
             감정 분석
           </button>
-          <button onClick={handleOpenViewerList} className="action-button">
-            시청자 목록
-          </button>
+          
         </div>
 
       </div>
