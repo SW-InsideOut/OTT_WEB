@@ -72,7 +72,7 @@ body {
   color: #FFFFFF;
   border: 1px solid #1D5385;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 10px 20px;
   cursor: pointer;
   font-size: 14px;
   transition: background 0.2s, color 0.2s;
@@ -84,22 +84,28 @@ body {
   color: #f9f4eb;
 }
 
-/* 배경색이랑 버튼이 같은 버전*/
-.detail-button {
-  background-color: #F9F4EB;
-  color: #1D5385;
+
+/* flex 추가  */
+.flex-button {
+  background-color: #1D5385;
+  color: #FFFFFF;
   border: 1px solid #1D5385;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 10px 20px;
   cursor: pointer;
   font-size: 14px;
+  flex: 1;
+  width: 100%; 
   transition: background 0.2s, color 0.2s;
 }
 
-.detail-button:hover {
+/* 마우스 올렸을 때 효과 */
+.flex-button:hover {
   background-color: #163d64;
   color: #f9f4eb;
 }
+
+
 
 
 @keyframes App-logo-spin {

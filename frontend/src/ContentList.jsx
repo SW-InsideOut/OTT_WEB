@@ -51,9 +51,9 @@ export default function ContentList() {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <button className="search-button"><FaSearch /></button>
+        <button className="action-button"><FaSearch /></button>
         <button
-          className="register-button"
+          className="action-button"
           onClick={() => navigate("/add")}
         >
           콘텐츠 등록

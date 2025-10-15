@@ -148,28 +148,14 @@ export default function AddContent() {
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
           <button
             type="submit"
-            style={{
-              flex: 1,
-              padding: '10px',
-              backgroundColor: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="flex-button"
           >
             등록
           </button>
           <button
             type="button"
             onClick={handleCancel}
-            style={{
-              flex: 1,
-              padding: '10px',
-              backgroundColor: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="flex-button"
           >
             취소
           </button>

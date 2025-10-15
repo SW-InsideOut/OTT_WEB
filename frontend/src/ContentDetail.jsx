@@ -211,8 +211,13 @@ export default function ContentDetail() {
           justifyContent: 'center',
           gap: '12px',
           marginTop: '40px'
+          
         }}>
-          <button onClick={handleStartSurvey} className="action-button">
+          <button 
+            onClick={handleStartSurvey} 
+            className="flex-button"
+            style={{ flex: 1, maxWidth: '200px' }}
+          >
             감정 분석
           </button>
           

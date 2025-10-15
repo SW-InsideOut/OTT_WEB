@@ -90,15 +90,7 @@ export default function SurveyForm() {
 
         <button
           type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            border: "none",
-            backgroundColor: "#1D5385",
-            color: "#F9F4EB",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="flex-button"
         >
           제출
         </button>

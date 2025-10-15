@@ -28,24 +28,6 @@
   opacity: 0.8;    /* 조금 연하게 표시 */
 }
 
-/* 버튼 공통 스타일 */
-.search-button,
-.register-button {
-  background-color: #1D5385;
-  color: #FFFFFF;
-  border: 1px solid #1D5385;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s, color 0.2s;
-}
-
-.search-button:hover,
-.register-button:hover {
-  background-color: #444;
-  color: #fff;
-}
 
 /* 그리드 */
 .grid-container {
