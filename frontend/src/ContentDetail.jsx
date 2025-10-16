@@ -135,10 +135,40 @@ export default function ContentDetail() {
         <div style={{ display: 'flex', gap: '40px', marginBottom: '32px' }}>
           {/* 왼쪽: 정보 */}
           <div style={{ flex: 2 }}>
-            <img src={`http://localhost:5000/${content.poster_url}`} alt={content.name} style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }} />
-            <p><strong>공개 연도:</strong> {content.release_year}</p>
-            <p><strong>배급사:</strong> {content.distributor}</p>
-            <p><strong>장르:</strong> {content.genre}</p>
+
+          {/* 콘텐츠 이미지 */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',   // 세로 배치
+              alignItems: 'center',      // 가로 중앙 정렬
+              marginBottom: '16px',
+            }}
+          >
+            <img
+              src={`http://localhost:5000/${content.poster_url}`}
+              alt={content.name}
+              style={{
+                width: '100%',
+                maxWidth: '300px',
+                borderRadius: '8px',
+                marginBottom: '12px',    // 이미지와 텍스트 간격
+              }}
+            />
+
+            {/* 텍스트 가운데 정렬 */}
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '300px',
+                textAlign: 'center',     // 텍스트 가운데 정렬
+              }}
+            >
+              <p><strong>공개 연도:</strong> {content.release_year}</p>
+              <p><strong>배급사:</strong> {content.distributor}</p>
+              <p><strong>장르:</strong> {content.genre}</p>
+            </div>
+          </div>
 
             <div style={{ border: '1px solid #ccc', borderRadius: '12px', padding: '16px', marginTop: '24px' }}>
               <h4 style={{ marginTop: 0 }}>감정 분석 결과</h4>
@@ -148,35 +178,10 @@ export default function ContentDetail() {
                   <p><strong>비율:</strong> {topEmotion.percentage}% &nbsp;&nbsp;</p>
                   <p><strong>시청자 수:</strong> {content.viewer_count}명</p>
                   <p><strong>가장 많은 성별:</strong> {genderMap[mostGender] || '정보 없음'}</p>
-                      <p><strong>가장 많은 연령대:</strong> {ageGroupMap[mostAgeGroup] || '정보 없음'}</p>
-
-                  <h5 style={{ margin: '16px 0 8px' }}>감정 타임라인</h5>
-                  <div style={{
-                    position: 'relative',
-                    height: '20px',
-                    width: '100%',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '20px'
-                  }}>
-                    {emotions.map((e, idx) => (
-                      <div key={idx} style={{
-                        position: 'absolute',
-                        left: `${(e.seconds / maxTime) * 100}%`,
-                        transform: 'translateX(-50%)',
-                        top: '-8px',
-                        fontSize: '24px',
-                        cursor: 'pointer'
-                      }}>
-                        <div className="tooltip-container">
-                          <span>{emotionEmojis[e.emotion] || ''}</span>
-                          <span className="tooltip-text">{e.timestamp}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <p><strong>가장 많은 연령대:</strong> {ageGroupMap[mostAgeGroup] || '정보 없음'}</p>
                 </>
               ) : (
-                <p>아직 Top 감정 기록이 없습니다.</p>
+                <p>아직 감정 분석 결과가 없습니다.</p>
               )}
             </div>
           </div>
@@ -190,7 +195,7 @@ export default function ContentDetail() {
           }}>
             <h4 style={{ marginTop: 0 }}>감정 분석 기록</h4>
             {history.length > 0 ? (
-              <div style={{ maxHeight: '650px', overflowY: 'auto', paddingLeft: '16px' }}>
+              <div style={{ maxHeight: '770px', overflowY: 'auto', paddingLeft: '16px' }}>
                 <ul style={{ margin: 0 }}>
                   {history.map((item, i) => (
                     <li key={i} style={{ marginBottom: '4px' }}>
@@ -205,6 +210,35 @@ export default function ContentDetail() {
           </div>
         </div>
 
+        <div style={{ border: '1px solid #ccc', borderRadius: '12px', padding: '16px', marginTop: '24px' }}>
+          <h4 style={{ margin: '16px 0 8px' }}>감정 타임라인</h4>
+          <p> </p>
+        
+                    <div style={{
+                      position: 'relative',
+                      height: '20px',
+                      width: '100%',
+                      backgroundColor: '#e0e0e0',
+                      borderRadius: '20px'
+                    }}>
+                      {emotions.map((e, idx) => (
+                        <div key={idx} style={{
+                          position: 'absolute',
+                          left: `${(e.seconds / maxTime) * 100}%`,
+                          transform: 'translateX(-50%)',
+                          top: '-8px',
+                          fontSize: '24px',
+                          cursor: 'pointer'
+                        }}>
+                          <div className="tooltip-container">
+                            <span>{emotionEmojis[e.emotion] || ''}</span>
+                            <span className="tooltip-text">{e.timestamp} {e.emotion}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <br />          
+        </div>
         {/* 감정 분석 버튼 */}
         <div style={{
           display: 'flex',

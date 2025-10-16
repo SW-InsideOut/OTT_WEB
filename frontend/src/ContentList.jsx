@@ -12,7 +12,7 @@ export default function ContentList() {
   const navigate = useNavigate();
 
   // 한 페이지당 3행×5열 = 15개
-  const itemsPerPage = 24;
+  const itemsPerPage = 25;
 
   useEffect(() => {
     axios

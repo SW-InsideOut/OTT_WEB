@@ -43,7 +43,7 @@ body {
 
 .tooltip-text {
   visibility: hidden;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: #1D5385;
   color: #fff;
   text-align: center;
   border-radius: 6px;
@@ -53,7 +53,7 @@ body {
 
   position: absolute;
   z-index: 1000;
-  bottom: 150%;
+  bottom: -100%;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
