@@ -12,7 +12,7 @@ export default function ContentList() {
   const navigate = useNavigate();
 
   // 한 페이지당 3행×5열 = 15개
-  const itemsPerPage = 25;
+  const itemsPerPage = 30;
 
   useEffect(() => {
     axios
@@ -60,11 +60,13 @@ export default function ContentList() {
         </button>
       </div>
 
+      <p></p>
+
       <div
         className="grid-container"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: "repeat(6, 1fr)",
           gap: "16px",
         }}
       >
