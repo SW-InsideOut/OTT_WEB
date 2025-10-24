@@ -4,14 +4,13 @@ import { useNavigate } from "react-router-dom";
 import "./ContentList.css";
 import { FaSearch } from "react-icons/fa";
 
-
 export default function ContentList() {
   const [contents, setContents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState("title"); // 🔸 검색 기준
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
-  // 한 페이지당 3행×5열 = 15개
   const itemsPerPage = 30;
 
   useEffect(() => {
@@ -26,32 +25,49 @@ export default function ContentList() {
     setCurrentPage(1);
   };
 
-  // 최신 등록순 정렬
-  const sorted = [...contents].sort((a, b) => b.id - a.id);
+  // 🔸 검색 기준에 따라 필터링
+  const filtered = contents.filter((content) => {
+    const value =
+      searchType === "title"
+        ? content.name
+        : searchType === "platform"
+        ? content.distributor
+        : content.genre;
 
-  // 검색 필터링
-  const filtered = sorted.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    return value?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
-  // 페이지 분할
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const sorted = [...filtered].sort((a, b) => b.id - a.id);
+
+  const totalPages = Math.ceil(sorted.length / itemsPerPage);
   const startIdx = (currentPage - 1) * itemsPerPage;
-  const currentContents = filtered.slice(startIdx, startIdx + itemsPerPage);
+  const currentContents = sorted.slice(startIdx, startIdx + itemsPerPage);
 
   const goToPage = (page) => setCurrentPage(page);
 
   return (
     <div className="content-list-container">
 
+      {/* 🔍 검색 영역 */}
       <div className="search-and-button">
+        <select
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value)}
+          className="search-select"
+        >
+          <option value="title">제목으로 검색</option>
+          <option value="platform">플랫폼으로 검색</option>
+          <option value="genre">장르로 검색</option>
+        </select>
+
         <input
           type="text"
-          placeholder="제목으로 검색..."
+          placeholder="검색어를 입력하세요..."
           value={searchTerm}
           onChange={handleSearchChange}
         />
         <button className="action-button"><FaSearch /></button>
+
         <button
           className="action-button"
           onClick={() => navigate("/add")}
@@ -60,8 +76,7 @@ export default function ContentList() {
         </button>
       </div>
 
-      <p></p>
-
+      {/* 콘텐츠 목록 */}
       <div
         className="grid-container"
         style={{
@@ -84,17 +99,12 @@ export default function ContentList() {
         ))}
       </div>
 
+      {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button onClick={() => goToPage(1)} disabled={currentPage === 1}>
-            «
-          </button>
-          <button
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            ‹
-          </button>
+          <button onClick={() => goToPage(1)} disabled={currentPage === 1}>«</button>
+          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>‹</button>
+
           {[...Array(totalPages)].map((_, i) => {
             const page = i + 1;
             return (
@@ -107,18 +117,9 @@ export default function ContentList() {
               </button>
             );
           })}
-          <button
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            ›
-          </button>
-          <button
-            onClick={() => goToPage(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            »
-          </button>
+
+          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>›</button>
+          <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages}>»</button>
         </div>
       )}
     </div>

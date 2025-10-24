@@ -3,6 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
+import {
+  FaSmileBeam,   // 😊 밝은 미소 (채워진)
+  FaSadTear,     // 😢 눈물 슬픔 (채워진)
+  FaAngry,       // 😡 화남
+  FaMeh,         // 😐 중립
+  FaSurprise,    // 😲 놀람
+} from "react-icons/fa";
+
 export default function ContentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -106,11 +114,11 @@ export default function ContentDetail() {
   };
 
   const emotionEmojis = {
-    happy: '😊',
-    sad: '😢',
-    angry: '😡',
-    neutral: '😐',
-    surprize: '😲'
+    happy: <FaSmileBeam size={28} color="#FFD43B" />,    // 노란색, 행복
+    sad: <FaSadTear size={28} color="#4A90E2" />,        // 파란색, 슬픔
+    angry: <FaAngry size={28} color="#E03131" />,        // 빨강, 화남
+    neutral: <FaMeh size={28} color="#999" />,           // 회색, 중립
+    surprise: <FaSurprise size={28} color="#FF9F1C" />,  // 주황, 놀람
   };
 
   if (!content) return <p style={{ textAlign: 'center', padding: '24px' }}>불러오는 중…</p>;
@@ -165,7 +173,7 @@ export default function ContentDetail() {
               }}
             >
               <p><strong>공개 연도:</strong> {content.release_year}</p>
-              <p><strong>배급사:</strong> {content.distributor}</p>
+              <p><strong>플랫폼:</strong> {content.distributor}</p>
               <p><strong>장르:</strong> {content.genre}</p>
             </div>
           </div>

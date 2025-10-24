@@ -121,7 +121,7 @@ export default function AddContent() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <label style={{ width: '80px' }}>배급사</label>
+          <label style={{ width: '80px' }}>플랫폼</label>
           <input
             type="text"
             name="distributor"
