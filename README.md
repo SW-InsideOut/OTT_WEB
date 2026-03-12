@@ -1,7 +1,7 @@
 # 딥러닝 기반 OTT 콘텐츠 시청자의 실시간 감정 변화 추적 시스템
 
 ## 프로젝트 포스터
-![프로젝트 포스터](./docs/poster.png)
+<img width="991" height="1407" alt="Image" src="https://github.com/user-attachments/assets/a584c99d-5c1b-466e-b23f-9cc94768222d" />
 
 
 
